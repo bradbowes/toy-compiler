@@ -1,0 +1,102 @@
+<letter>        = 'a'..'z'
+                | 'A'..'Z'.
+
+<digit>         = '0'..'9'.
+
+<id>            = <letter> {<letter>|<digit>|'_'}.
+
+<number>        = <digit> {<digit>}.
+
+<decs>          = {<dec>}.
+
+<dec>           = <tydec>
+                | <vardec>
+                | <fundec>
+                | <procdec>.
+
+<tydec>         = 'type' <id> = <ty>.
+
+<ty>            = <id>
+                | '{' <tyfields> '}'
+                | 'array' 'of' <id>.
+
+<tyfields>      = [<id> ':' <id> {',' <id> ':' <id> }].
+
+<vardec>        = 'var' <id> ':=' <exp>
+                | 'var' <id> ':' <id> ':=' <exp>.
+
+<procdec>       = 'function' <id> '(' <tyfields> ')' '=' <stm>.
+
+<fundec>        = 'function' <id> '(' <tyfields> ')' ':' <id> '=' <stm>.
+
+<seq>           = [<stm> {<stm>}].
+
+<exp>           = <disjunction>.
+
+<stm>           = <lvalue> ':=' <exp>
+                | 'if' <exp> 'then' <seq>
+                  ['else' <seq>]
+                  'end'
+                | 'while' <exp> 'do' <seq> 'end'
+                | 'for' <id> ':=' <exp> 'to' <exp> 'do' <seq> 'end'
+                | 'break'
+                | 'let' <decs> 'in' <seq> 'end'
+                | 'return' <exp>
+                | <call>
+                | <stm> ';'.
+
+<disjunction>   = <conjunction>
+                | <disjunction> 'or' <conjunction>.
+
+<conjunction>   = <negation>
+                | <conjunction> 'and' <negation>.
+                
+<negation>      = ['not'] <bool>.
+                
+<bool>          = <sum> [ <relop> <sum> ].
+
+<relop>         = '='
+                | '<>'
+                | '<'
+                | '<='
+                | '>'
+                | '>='.
+                
+<sum>           = <product>
+                | <sum> <addlop> <product>.
+
+<addop>         = '+'
+                | '-'.
+
+<product>       = <factor>
+                | <product> <mulop> <factor>.
+
+<mulop>         = '*'
+                | '/'
+                | '%'.
+                
+<lvalue>        = <id>
+                | <lvalue> '.' <id>
+                | <lvalue> '[' <exp> ']'.
+
+<factor>        = <lvalue>
+                | 'nil'
+                | 'true'
+                | 'false'
+                | '(' <exp> ')'
+                | <number>
+                | <string>
+                | '-' <factor>
+                | <call>
+                | <record>
+                | <array>.
+
+<call>          = <lvalue> '(' [<exp> {',' <exp>}] ')'.
+
+<record>        = '{' <id> '=' <exp> {',' <id> '=' <exp>} '}'
+                | new <id>.
+
+<array>         = '[' <exp> {',' <exp>}']'
+                | new <id> '[' <exp> ']'.
+
+
