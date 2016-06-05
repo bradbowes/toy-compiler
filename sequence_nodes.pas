@@ -35,13 +35,14 @@ begin
    make_sequence_node := n;
 end;
 
+
 function sequence_node_t.display: string;
 var
    s: string;
    ls : stm_list;
 begin
    ls := self.list;
-   s := '<stm> ' + ls^.stm^.display + '</stm>' + chr(10);
+   s := '<stm>' + ls^.stm^.display + '</stm>' + chr(10);
    while ls^.next <> nil do
       begin
          ls := ls^.next;

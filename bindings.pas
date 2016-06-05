@@ -9,16 +9,19 @@ type
       key : symbol;
       value : string;
       left, right : binding;
-   end;			 
+   end;
+
 
 function bind (table : binding; key : symbol; value : string) : binding;
 function lookup (table : binding; key : symbol) : string;
+
 
 implementation
 
 function make_binding (
       key : symbol; value : string; left, right : binding) : binding;
-var b : binding;
+var
+   b : binding;
 begin
    new (b);
    b^.key := key;
@@ -28,8 +31,10 @@ begin
    make_binding := b;
 end;
 
+
 function height (table : binding) : integer;
-var l, r : integer;
+var
+   l, r : integer;
 begin
    l := 0; r := 0;
    if not (table = nil) then begin
@@ -39,11 +44,13 @@ begin
    if l > r then height := l else height := r
 end;
 
+
 function balance (table: binding) : integer;
 begin
    if table = nil then balance := 0
    else balance := height (table^.left) - height (table^.right);
 end;
+
 
 function rotate_left (table : binding) : binding;
 begin
@@ -57,6 +64,7 @@ begin
    dispose (table);
 end;
 
+
 function rotate_right (table : binding) : binding;
 begin
    rotate_right := make_binding (table^.left^.key,
@@ -68,6 +76,7 @@ begin
                                                table^.right));
    dispose (table);
 end;
+
 
 function bind (table : binding; key : symbol; value : string) : binding;
 var
@@ -95,6 +104,7 @@ begin
    end;
    bind := item;
 end;
+
 
 function lookup (table : binding; key : symbol) : string;
 begin
