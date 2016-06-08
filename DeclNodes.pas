@@ -1,0 +1,86 @@
+unit DeclNodes;
+
+interface
+
+uses Symbols, Nodes;
+
+type
+   PTypeDeclNode = ^TTypeDeclNode;
+   TTypeDeclNode = Object(TNode)
+      Name: Symbol;
+      Ty: PNode;
+   end;
+
+
+   PVarDeclNode = ^TVarDeclNode;
+   TVarDeclNode = Object(TNode)
+      Name: Symbol;
+      Ty: Symbol;
+      Initializer: PNode;
+   end;
+
+
+   PFunDeclNode = ^TFunDeclNode;
+   TFunDeclNode = Object(TNode)
+      Name: Symbol;
+      Params: PList;
+      Ty: Symbol;
+      Body: PNode;
+   end;
+   
+
+function MakeTypeDeclNode(
+      Name: symbol; Ty: PNode; Line, Col: LongInt): PTypeDeclNode;
+function MakeVarDeclNode(
+      Name, Ty: Symbol; Initializer: PNode; Line, Col: LongInt): PVarDeclNode;
+function MakeFunDeclNode(
+      Name: Symbol; Params: PList; Ty: Symbol; Body: PNode;
+      Line, Col: LongInt): PFunDeclNode;
+
+
+implementation
+
+function MakeTypeDeclNode(
+      Name: Symbol; Ty: PNode; Line, Col: LongInt): PTypeDeclNode;
+var
+   n: PTypeDeclNode;
+begin
+   new(n, init(Line, Col));
+   n^.Kind := TypeDeclNode;
+   n^.Name := Name;
+   n^.Ty := Ty;
+   MakeTypeDeclNode := n;
+end;
+   
+
+function MakeVarDeclNode(
+      Name, Ty: Symbol; Initializer: PNode; Line, Col: LongInt): PVarDeclNode;
+var
+   n: PVarDeclNode;
+begin
+   new(n, init(Line, Col));
+   n^.Kind := VarDeclNode;
+   n^.Name := Name;
+   n^.Ty := Ty;
+   n^.Initializer := Initializer;
+   MakeVarDeclNode := n;
+end;
+   
+
+function MakeFunDeclNode(
+      Name: Symbol; Params: PList; Ty: Symbol; Body: PNode;
+      Line, Col: LongInt): PFunDeclNode;
+var
+   n: PFunDeclNode;
+begin
+   new(n, init(Line, Col));
+   n^.Kind := FunDeclNode;
+   n^.Name := Name;
+   n^.Params := Params;
+   n^.Ty := Ty;
+   n^.Body := Body;
+   MakeFunDeclNode := n;
+end;
+      
+
+end.

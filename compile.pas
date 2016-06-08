@@ -1,7 +1,7 @@
 program compile;
 uses
-   parsers;
+   Parsers;
 
 begin
-   parse('test.p');
+   Parse('test.p');
 end.

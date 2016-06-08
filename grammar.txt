@@ -25,11 +25,13 @@
 <vardec>        = 'var' <id> ':=' <exp>
                 | 'var' <id> ':' <id> ':=' <exp>.
 
-<procdec>       = 'function' <id> '(' <tyfields> ')' '=' <stm>.
+<procdec>       = 'function' <id> '(' <tyfields> ')' <block>.
 
-<fundec>        = 'function' <id> '(' <tyfields> ')' ':' <id> '=' <stm>.
+<fundec>        = 'function' <id> '(' <tyfields> ')' ':' <id> <block>.
 
-<seq>           = [<stm> {<stm>}].
+<block>         = <decs> ['begin' <seq>] 'end'.
+
+<seq>           = {<stm>}.
 
 <exp>           = <disjunction>.
 
@@ -40,7 +42,6 @@
                 | 'while' <exp> 'do' <seq> 'end'
                 | 'for' <id> ':=' <exp> 'to' <exp> 'do' <seq> 'end'
                 | 'break'
-                | 'let' <decs> 'in' <seq> 'end'
                 | 'return' <exp>
                 | <call>
                 | <stm> ';'.
@@ -98,5 +99,4 @@
 
 <array>         = '[' <exp> {',' <exp>}']'
                 | new <id> '[' <exp> ']'.
-
 
