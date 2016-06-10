@@ -496,21 +496,118 @@ var
          Append(Seq, GetStatement);
       GetSequence := Seq;
    end;
+   
+   
+   function GetVarDeclaration: PNode;
+   var
+      Line, Col: LongInt;
+      Name, Ty: Symbol;
+      Exp: PNode;
+   begin
+      GetVarDeclaration := nil;
+      Name := nil;
+      Ty := nil;
+      Exp := nil;
+      Line := Token^.Line;
+      Col := Token^.Col;
+      Next;
+      if Token^.Token = IdToken then
+         begin
+            Name := Intern(Token^.Value);
+            Next;
+         end
+      else
+         err('Expected identifier, got ''' + Token^.Value + '''',
+             Token^.Line, Token^.Col);
+      case Token^.Token of
+         ColonToken:
+            begin
+               Next;
+               if Token^.Token = IdToken then
+                  begin
+                     Ty := Intern(Token^.Value);
+                     Next;
+                     if Token^.Token = AssignToken then
+                        begin
+                           Next;
+                           Exp := GetExpression;
+                        end;
+                  end
+               else
+                  err('Expected identifier, got ''' + Token^.Value + '''',
+                      Token^.Line, Token^.Col);
+            end;
+         AssignToken:
+            begin
+               Next;
+               Exp := GetExpression;
+            end
+         else
+            err('Expected '':'' or '':='', got ''' + Token^.Value + '''',
+                Token^.Line, Token^.Col);
+      end;
+      GetVarDeclaration := MakeVarDeclNode(Name, Ty, Exp, Line, Col);
+   end;
+      
+   
+   function GetDeclaration: PNode;
+   begin
+      GetDeclaration := nil;
+      case Token^.Token of
+         VarToken: GetDeclaration := GetVarDeclaration;
+      else
+         err('Expected declaration, got ''' + Token^.Value + '''',
+             Token^.Line, Token^.Col);
+      end;
+      if Token^.Token = SemicolonToken then
+         Next;
+   end;
 
+
+   function GetDeclarations: PList;
+   var
+      Decls: PList;
+   begin
+      Decls := MakeList(Token^.Line, Token^.Col);
+      while Token^.Token in [VarToken, FunctionToken, TypeToken] do
+         Append(Decls, GetDeclaration);
+      GetDeclarations := Decls
+   end;
+   
+   
+   function GetBlock: PNode;
+   var
+      Line, Col: LongInt;
+      Decls: PList;
+      Body: PList;
+   begin
+      Line := Token^.Line;
+      Col := Token^.Col;
+      Decls := GetDeclarations;
+      
+      if Token^.Token = BeginToken then
+         begin
+            Next;
+            Body := GetSequence;
+         end
+      else
+         Body := MakeList(Token^.Line, Token^.Col);
+      if Token^.Token = EndToken then
+         Next
+      else
+         err('Expected ''end'', got ''' + Token^.Value + '''', Token^.Line, Token^.Col);
+      GetBlock := MakeBlockNode(Decls, Body, Line, Col);
+   end;
+      
 
 var
-   stm: PNode;
+   block: PNode;
 begin
    Token := nil;
    Scanner := MakeScanner(FileName);
    Next;
-   stm := GetStatement;
-   writeln(stm^.display);
-   while Token^.Token <> EofToken do
-      begin
-         stm := GetStatement;
-         writeln(stm^.display);
-      end;
+   block := GetBlock;
+   writeln(block^.display);
 end; { Parse }
 
 

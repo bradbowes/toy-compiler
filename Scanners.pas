@@ -190,7 +190,10 @@ begin
    t^.col := s^.x;
    t^.line := s^.y;
    if not s^.open then
-       t^.Token := EofToken
+      begin
+         t^.Token := EofToken;
+         t^.Value := '<EOF>';
+      end
    else
       begin
          case s^.ch of 

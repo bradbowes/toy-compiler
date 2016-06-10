@@ -7,6 +7,7 @@ type
    TBlockNode = object(TNode)
       Decls: PList;
       Body: PList;
+      function Display: String; virtual;
    end;
          
 
@@ -24,6 +25,17 @@ begin
    n^.Decls := Decls;
    n^.Body := Body;      
    MakeBlockNode := n;
+end;
+
+
+function TBlockNode.Display: String;
+begin
+   Display := '<declartions>' + chr(10) +
+              Self.Decls^.Display +
+              '</declarations>' + chr(10) +
+              '<body>' + chr(10) +
+              Self.Body^.Display +
+              '</body>' + chr(10);
 end;
 
 

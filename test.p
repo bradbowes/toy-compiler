@@ -1,8 +1,17 @@
-/* just testing loops */
+var a: boolean;
+var b := 1;
+var c := 2
+var d: number;
 
-ch := 1 * 2 * 3;
+begin
+   /* just testing loops */
 
-/* another statement */
-print(string.format('program', 5))
+   d := 1 * 2 * 3;
 
-a := b = c;
+   /* another statement */
+   print(string.format('program', 5))
+
+   a := b = c;
+end
+
+commenatory on the module can go here!

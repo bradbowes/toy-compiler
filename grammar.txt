@@ -23,7 +23,8 @@
 <tyfields>      = [<id> ':' <id> {',' <id> ':' <id> }].
 
 <vardec>        = 'var' <id> ':=' <exp>
-                | 'var' <id> ':' <id> ':=' <exp>.
+                | 'var' <id> ':' <id> ':=' <exp>
+                | 'var' <id> ':' <id>.
 
 <procdec>       = 'function' <id> '(' <tyfields> ')' <block>.
 
