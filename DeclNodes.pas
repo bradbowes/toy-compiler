@@ -17,6 +17,7 @@ type
       Name: Symbol;
       Ty: Symbol;
       Initializer: PNode;
+      function Display: String; virtual;
    end;
 
 
@@ -66,6 +67,19 @@ begin
    MakeVarDeclNode := n;
 end;
    
+
+function TVarDeclNode.Display: String;
+var
+   s: String;
+begin
+   s := 'var ' + self.Name^.Id;
+   if self.Ty <> nil then
+      s := s + ': ' + self.Ty^.Id;
+   if self.Initializer <> nil then
+      s := s + ' := ' + self.Initializer^.Display;
+   Display := s;
+end;
+
 
 function MakeFunDeclNode(
       Name: Symbol; Params: PList; Ty: Symbol; Body: PNode;

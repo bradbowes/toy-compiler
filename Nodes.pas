@@ -12,6 +12,10 @@ type
                WhileNode, ForNode, BreakNode, BlockNode,
                ListNode);
 
+   
+   SeparatorType = (SemicolonSeparator, CommaSeparator);
+
+
    PNode = ^TNode;
    TNode = Object
       Line, Col: LongInt;
@@ -31,6 +35,7 @@ type
    PList = ^TList;
    TList = Object(TNode)
       First: PListItem;
+      Separator: SeparatorType;
       function Display: String; virtual;
    end;
 
@@ -64,6 +69,7 @@ begin
    new(list, init(Line, Col));
    list^.Kind := ListNode;
    list^.First := nil;
+   list^.Separator := SemicolonSeparator;
    MakeList := list;
 end;
 
@@ -105,7 +111,13 @@ begin
    it := self.First;
    while it <> nil do
       begin
-         s := s + '<item>' + it^.Node^.Display + '</item>' + chr(10);
+         s := s + it^.Node^.Display;
+         case self.Separator of
+            SemiColonSeparator: s := s + ';' + chr(10);
+            CommaSeparator:
+               if it^.Next <> nil then
+                  s := s + ', ';
+         end;
          it := it^.Next;
       end;
    Display := s;

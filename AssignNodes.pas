@@ -32,9 +32,7 @@ end;
 
 function TAssignNode.Display: string;
 begin
-   Display := '[<assign> ' +
-              self.Variable^.Display + ' ' +
-              self.Expression^.Display + ']';
+   Display := self.Variable^.Display + ' := ' + self.Expression^.Display;
 end;
 
 

@@ -49,7 +49,8 @@ var
    s: String;
 begin
    Str(self.Op, s);
-   Display := '[' + s + ' ' + self.Expression^.Display + ']';
+   SetLength(s, Length(s) - 2);
+   Display := Lowercase(s) + '(' + self.Expression^.Display + ')';
 end;
 
 
@@ -72,7 +73,8 @@ var
    s: String;
 begin
    Str(self.Op, s);
-   Display := '[' + s + ' ' + self.Left^.Display + ' ' + self.Right^.Display + ']';
+   SetLength(s, Length(s) - 2);
+   Display := Lowercase(s) + '(' + self.Left^.Display + ', ' + self.Right^.Display + ')';
 end;
 
 

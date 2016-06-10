@@ -31,6 +31,7 @@ var
       List: PList;
    begin
       List := MakeList(Token^.Line, Token^.Col);
+      List^.Separator := CommaSeparator;
       if Token^.Token <> RParenToken then
          begin
             Append(List, GetExpression);

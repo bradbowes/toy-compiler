@@ -40,7 +40,7 @@ end;
 
 function TCallNode.Display: string;
 begin
-   Display := '[<funccall> ' + self.Call^.Display + ' [' + self.Args^.Display + ']]';
+   Display := self.Call^.Display + '(' + self.Args^.Display + ')';
 end;
 
 
@@ -57,7 +57,7 @@ end;
 
 function TReturnNode.Display: string;
 begin
-   Display := '[<return> ' + self.Value^.Display + ']';
+   Display := 'return ' + self.Value^.Display;
 end;
 
 

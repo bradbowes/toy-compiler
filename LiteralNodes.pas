@@ -70,7 +70,7 @@ end;
 
 function TStringNode.Display: String;
 begin
-   Display := '''' + self.Value + '''';
+   Display := '{' + self.Value + '}';
 end;
 
 
@@ -106,7 +106,7 @@ end;
 
 function TNilNode.Display: String;
 begin
-   Display := '<nil>';
+   Display := 'nil';
 end;
 
 
