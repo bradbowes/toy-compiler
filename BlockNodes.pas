@@ -30,12 +30,10 @@ end;
 
 function TBlockNode.Display: String;
 begin
-   Display := '<declartions>' + chr(10) +
-              Self.Decls^.Display +
-              '</declarations>' + chr(10) +
-              '<body>' + chr(10) +
+   Display := Self.Decls^.Display + chr(10) +
+              'begin' + chr(10) +
               Self.Body^.Display +
-              '</body>' + chr(10);
+              'end';
 end;
 
 

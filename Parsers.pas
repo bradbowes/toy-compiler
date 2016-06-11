@@ -16,16 +16,43 @@ var
    Scanner: PScanner;
    Token: PToken;
    
+   function GetExpression: PNode; forward;
+   function GetSequence: PList; forward;
+   function GetBlock: PNode; forward;
+   
    procedure Next;
    begin
       Token := Scan(Scanner);
       while Token^.Token = CommentToken do
          Token := Scan(Scanner);
    end;
-
-   function GetExpression: PNode; forward;
-   function GetSequence: PList; forward;
    
+   function GetIdentifier: Symbol;
+   var
+      Value: String;
+   begin
+      Value := Token^.Value;
+      GetIdentifier := nil;
+      if Token^.Token = IdToken then
+         begin
+            GetIdentifier := Intern(Value);
+            Next;
+         end
+      else
+         err('Expected identifier, got ''' + Value + '''', Token^.Line, Token^.Col);
+   end;
+
+
+   procedure Advance(T: TokenType; ErrDesc: String);
+   begin
+      if Token^.Token = T then
+         Next
+      else
+         err('Expected ''' + ErrDesc + ''', got ''' +
+             Token^.Value, Token^.Line, Token^.Col);
+   end;
+
+
    function GetExpressionList: PList;
    var
       List: PList;
@@ -46,90 +73,65 @@ var
 
    function GetVariable(Variable: PNode): PNode;
    var
-      val: String;
-      n: PNode;
+      Id: Symbol;
+      Node: PNode;
       Line, Col: LongInt;
+      
+      procedure GetNext;
+      begin
+         Next;
+         Line := Token^.Line;
+         Col := Token^.Col;
+      end;
+      
    begin
       GetVariable := nil;
       case Token^.Token of
          DotToken:
             begin
-               Next;
-               if Token^.Token = IdToken then
-                  begin
-                     val := Token^.Value;
-                     Line := Token^.Line;
-                     Col := Token^.Col;
-                     Next;
-                     GetVariable := GetVariable(
-                           MakeFieldVarNode(
-                                  Variable,
-                                  intern(val),
-                                  Line,
-                                  Col));
-                  end
-               else
-                  err('Expected field identifier', Token^.Line, Token^.Col);
+               GetNext;
+               Id := GetIdentifier;
+               GetVariable := GetVariable(MakeFieldVarNode(Variable, Id, Line, Col));
             end;
          LBracketToken:
             begin
-               Next;
-               Line := Token^.Line;
-               Col := Token^.Col;
-               n := GetExpression;
-               if Token^.Token = RBracketToken then
-                  begin
-                     Next;
-                     GetVariable := GetVariable(
-                           MakeIndexedVarNode(
-                                 Variable,
-                                 n,
-                                 Line,
-                                 Col));
-                  end
-               else
-                  err('Expected '']''', Token^.Line, Token^.Col);
+               GetNext;
+               Node := GetExpression;
+               Advance(RBracketToken, ']');
+               GetVariable := GetVariable(MakeIndexedVarNode(Variable, Node, Line, Col));
             end;
          LParenToken:
             begin
-               Next;
-               Line := Token^.Line;
-               Col := Token^.Col;
-               n := GetExpressionList;
-               if Token^.Token = RParenToken then
-                  begin
-                     Next;
-                     GetVariable := MakeCallNode(Variable, PList(n), Line, Col);
-                  end
-               else
-                  err('Expected '')''', Token^.Line, Token^.Col);
-               
+               GetNext;
+               Node := GetExpressionList;
+               Advance(RParenToken, ')');
+               GetVariable := MakeCallNode(Variable, PList(Node), Line, Col);
             end;
          else
             GetVariable := Variable;
-      end
+      end;
    end;
                      
    
    function GetFactor: PNode;
    var
       Line, Col: LongInt;
-      val: String;
+      Value: String;
    begin
       Line := Token^.Line;
       Col := Token^.Col;
-      val := Token^.Value;
+      Value := Token^.Value;
       GetFactor := nil;
       case Token^.Token of
          NumberToken:
             begin
                Next;
-               GetFactor := MakeIntegerNode(atoi(val, Line, Col), Line, Col);
+               GetFactor := MakeIntegerNode(atoi(Value, Line, Col), Line, Col);
             end;
          StringToken:
             begin
                Next;
-               GetFactor := MakeStringNode(val, Line, Col);
+               GetFactor := MakeStringNode(Value, Line, Col);
             end;
          TrueToken:
             begin
@@ -154,15 +156,15 @@ var
          IdToken:
             begin
                Next;
-               GetFactor := GetVariable(MakeSimpleVarNode(Intern(val), Line, Col));
+               GetFactor := GetVariable(MakeSimpleVarNode(Intern(Value), Line, Col));
             end;
          else
             begin
                Next;
-               err('Expected value, got ''' + val + '''', Line, Col);
+               err('Expected value, got ''' + Value + '''', Line, Col);
             end;
       end;
-   end; { GetFactor }
+   end;
 
 
    function GetProduct: PNode;
@@ -283,7 +285,7 @@ var
       Line := Token^.Line;
       Col := Token^.Col;
       GetConjunction := Helper(GetNegation);
-   end; { GetConjunction }
+   end;
 
 
    function GetExpression: PNode;
@@ -306,7 +308,7 @@ var
       Line := Token^.Line;
       Col := Token^.Col;
       GetExpression := Helper(GetConjunction);
-   end; { GetExpression }
+   end;
 
 
    function GetIfStatement: PNode;
@@ -320,28 +322,18 @@ var
       Col := Token^.Col;
       Next;
       Condition := GetExpression;
-      if Token^.Token = ThenToken then
+      Advance(ThenToken, 'then');
+      Consequent := GetSequence;
+      if Token^.Token = ElseToken then
          begin
             Next;
-            Consequent := GetSequence;
-            if Token^.Token = ElseToken then
-               begin
-                  Next;
-                  GetIfStatement := MakeIfElseNode(
-                        Condition, Consequent, GetSequence, Line, Col);
-               end
-            else
-               GetIfStatement := MakeIfNode(Condition, Consequent, Line, Col);
-            if Token^.Token = EndToken then
-               Next
-            else
-               err('Expected ''end'', got ''' + Token^.Value + '''',
-                   Token^.Line, Token^.Col);
+            GetIfStatement := MakeIfElseNode(
+                  Condition, Consequent, GetSequence, Line, Col);
          end
       else
-         err('Expected ''then'', got ''' + Token^.Value + '''',
-             Token^.Line, Token^.Col);
-   end; { GetIfStatement }
+         GetIfStatement := MakeIfNode(Condition, Consequent, Line, Col);
+      Advance(EndToken, 'end');
+   end;
 
 
    function GetWhileStatement: PNode;
@@ -380,44 +372,15 @@ var
       Line := Token^.Line;
       Col := Token^.Col;
       Next;
-      if Token^.Token = IdToken then
-         begin
-            Counter := intern(Token^.Value);
-            Next;
-            if Token^.Token = AssignToken then
-               begin
-                  Next;
-                  Start := GetExpression;
-                  if Token^.Token = ToToken then
-                     begin
-                        Next;
-                        Finish := GetExpression;
-                        if Token^.Token = DoToken then
-                           begin
-                              Next;
-                              GetForStatement := MakeForNode(
-                                    Counter, Start, Finish, GetSequence, Line, Col);
-                              if Token^.Token = EndToken then
-                                 Next
-                              else
-                                 err('Expected ''end'', got ''' + Token^.Value + '''',
-                                     Token^.Line, Token^.Col); 
-                           end
-                        else
-                           err('Expected ''do'', got ''' + Token^.Value + '''',
-                               Token^.Line, Token^.Col);
-                     end
-                  else
-                     err('Expected ''to'', got ''' + Token^.Value + '''',
-                         Token^.Line, Token^.Col);
-               end
-            else
-               err('Expected '':='', got ''' + Token^.Value + '''',
-                   Token^.Line, Token^.Col);
-         end
-      else
-         err('Expected variable, got ''' + Token^.Value + '''',
-             Token^.Line, Token^.Col);
+      Counter := GetIdentifier;
+      Advance(AssignToken, ':=');
+      Start := GetExpression;
+      Advance(ToToken, 'to');
+      Finish := GetExpression;
+      Advance(DoToken, 'do');
+      GetForStatement := MakeForNode(
+            Counter, Start, Finish, GetSequence, Line, Col);
+      Advance(EndToken, 'end');
    end;
 
 
@@ -453,7 +416,7 @@ var
                   left, GetExpression, left^.Line, left ^.Col);
          end
       else
-        err('Expected assignment or procedure call', left^.Line, left^.Col)
+         err('Expected assignment or procedure call', left^.Line, left^.Col)
    end;
 
 
@@ -512,31 +475,17 @@ var
       Line := Token^.Line;
       Col := Token^.Col;
       Next;
-      if Token^.Token = IdToken then
-         begin
-            Name := Intern(Token^.Value);
-            Next;
-         end
-      else
-         err('Expected identifier, got ''' + Token^.Value + '''',
-             Token^.Line, Token^.Col);
+      Name := GetIdentifier;
       case Token^.Token of
          ColonToken:
             begin
                Next;
-               if Token^.Token = IdToken then
+               Ty := GetIdentifier;
+               if Token^.Token = AssignToken then
                   begin
-                     Ty := Intern(Token^.Value);
                      Next;
-                     if Token^.Token = AssignToken then
-                        begin
-                           Next;
-                           Exp := GetExpression;
-                        end;
-                  end
-               else
-                  err('Expected identifier, got ''' + Token^.Value + '''',
-                      Token^.Line, Token^.Col);
+                     Exp := GetExpression;
+                  end;
             end;
          AssignToken:
             begin
@@ -549,13 +498,72 @@ var
       end;
       GetVarDeclaration := MakeVarDeclNode(Name, Ty, Exp, Line, Col);
    end;
-      
+
+
+   function GetField: PNode;
+   var
+      Name: Symbol;
+      Line, Col: LongInt;
+   begin
+      Line := Token^.Line;
+      Col := Token^.Col;
+      Name := GetIdentifier;
+      Advance(ColonToken, ':');
+      GetField := MakeFieldNode(Name, GetIdentifier, Line, Col);
+   end;
+
    
+   function GetFieldList: PList;
+   var
+      List: PList;
+   begin
+      List := MakeList(Token^.Line, Token^.Col);
+      List^.Separator := CommaSeparator;
+      if not (Token^.Token in [RParenToken, RBraceToken]) then
+         begin
+            Append(List, GetField);
+            while Token^.Token = CommaToken do
+               begin
+                  Next;
+                  Append(List, GetField);
+               end;
+         end;               
+      GetFieldList := List;
+   end;
+  
+
+   function GetFunctionDeclaration: PNode;
+   var
+      Line, Col: LongInt;
+      Name, Ty: Symbol;
+      Params: PList;
+   begin
+      Line := Token^.Line;
+      Col := Token^.Col;
+      GetFunctionDeclaration := nil;
+      Next;
+      Name := GetIdentifier;
+      Advance(LParenToken, '(');
+      Params := GetFieldList;
+      Advance(RParenToken, ')');
+      if Token^.Token = ColonToken then
+         begin
+            Next;
+            Ty := GetIdentifier;
+         end
+      else
+         Ty := nil;
+      GetFunctionDeclaration := MakeFunDeclNode(Name, Params, Ty, GetBlock, Line, Col);
+      
+   end;
+  
+
    function GetDeclaration: PNode;
    begin
       GetDeclaration := nil;
       case Token^.Token of
          VarToken: GetDeclaration := GetVarDeclaration;
+         FunctionToken: GetDeclaration := GetFunctionDeclaration;
       else
          err('Expected declaration, got ''' + Token^.Value + '''',
              Token^.Line, Token^.Col);
@@ -593,10 +601,7 @@ var
          end
       else
          Body := MakeList(Token^.Line, Token^.Col);
-      if Token^.Token = EndToken then
-         Next
-      else
-         err('Expected ''end'', got ''' + Token^.Value + '''', Token^.Line, Token^.Col);
+      Advance(EndToken, 'end');
       GetBlock := MakeBlockNode(Decls, Body, Line, Col);
    end;
       

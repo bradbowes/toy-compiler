@@ -43,11 +43,11 @@ end;
 
 function TIfElseNode.Display: String;
 begin
-   Display := '<if-else>' + Chr(10) +
-         '<condition>' + Self.Condition^.Display + '</condition>' + Chr(10) +
-         '<consequent>' + Self.Consequent^.Display + '</consequent>' + Chr(10) +
-         '<alternative>' + Self.Alternative^.Display + '</alternative>' + Chr(10) +
-         '</if-else>' + Chr(10);
+   Display := 'if ' + Self.Condition^.Display + ' then' + Chr(10) +
+              Self.Consequent^.Display +
+              'else' + chr(10) +
+              Self.Alternative^.Display +
+              'end';
 end;
    
 
@@ -65,10 +65,10 @@ end;
 
 function TIfNode.Display: String;
 begin
-   Display := '<if>' + Chr(10) +
-         '<condition>' + Self.Condition^.Display + '</condition>' + Chr(10) +
-         '<consequent>' + Self.Consequent^.Display + '</consequent>' + Chr(10) +
-         '</if>' + Chr(10);
+   Display := 'if ' + Self.Condition^.Display + ' then' + Chr(10) +
+              Self.Consequent^.Display + '</consequent>' +
+              'end';
 end;
+
 
 end.

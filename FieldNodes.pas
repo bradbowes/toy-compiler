@@ -8,6 +8,7 @@ type
    TFieldNode = Object(TNode)
       Name: Symbol;
       Ty: Symbol;
+      function Display: String; virtual;
    end;
 
 function MakeFieldNode(Name, Ty: Symbol; Line, Col: LongInt): PFieldNode;
@@ -24,6 +25,12 @@ begin
    n^.Name := Name;
    n^.Ty := Ty;
    MakeFieldNode := n;
+end;
+
+
+function TFieldNode.Display: String;
+begin
+   Display := self.Name^.Id + ': ' + self.Ty^.Id;
 end;
 
 

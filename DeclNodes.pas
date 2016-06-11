@@ -27,6 +27,7 @@ type
       Params: PList;
       Ty: Symbol;
       Body: PNode;
+      function Display: String; virtual;
    end;
    
 
@@ -96,5 +97,16 @@ begin
    MakeFunDeclNode := n;
 end;
       
+
+function TFunDeclNode.Display: String;
+var
+   s: String;
+begin
+   s := 'function ' + self.Name^.Id + '(' + self.Params^.Display + ')';
+   if self.Ty <> nil then
+      s := s + ': ' + self.Ty^.Id;
+   Display := s + chr(10) + self.Body^.Display;
+end;
+
 
 end.

@@ -50,10 +50,9 @@ end;
 
 function TWhileNode.Display: string;
 begin
-   Display := '<while> ' + Chr(10) +
-              '<condition>' + Self.Condition^.Display + '</condition>' + Chr(10) +
-              '<body>' + Self.Body^.Display + '</body>' + Chr(10) +
-              '</while>' + Chr(10);
+   Display := 'while ' + Self.Condition^.Display + ' do' + Chr(10) +
+              Self.Body^.Display +
+              'end';
 end;
 
 
@@ -75,12 +74,11 @@ end;
 
 function TForNode.Display: String;
 begin
-   Display := '<for>' + Chr(10) +
-         '<counter>' + Self.Counter^.Id + '</counter>' + Chr(10) +
-         '<start>' + Self.Start^.Display + '</start>' + Chr(10) +
-         '<finish>' + Self.Finish^.Display + '</finish>' + Chr(10) +
-         '<body>' + Self.Body^.Display + '</body>' + Chr(10) +
-         '</for>' + Chr(10);
+   Display := 'for ' + Self.Counter^.Id + ' := ' +
+              Self.Start^.Display + ' to ' +
+              Self.Finish^.Display + ' do' + Chr(10) +
+              Self.Body^.Display +
+              'end'
 end;
 
 
