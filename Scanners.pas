@@ -5,26 +5,62 @@ interface
 uses utils;
 
 type 
-   TokenType = (ColonToken, CommaToken, SemicolonToken,
-                DotToken, LParenToken, RParenToken,
-                LBracketToken, RBracketToken, LBraceToken,
-                RBraceToken, AssignToken,
-                AndToken, OrToken, NotToken, EqToken, NEqToken,
-                LTToken, GTToken, LEqToken, GEqToken,
-                PlusToken, MinusToken, MulToken, DivToken,
-                ModToken, VarToken, TypeToken, ArrayToken,
-                OfToken, FunctionToken, IfToken, ThenToken,
-                ElseIfToken, ElseToken, WhileToken, DoToken,
-                ForToken, BreakToken, ToToken, BeginToken, NewToken,
-                NilToken, TrueToken, FalseToken,
-                EndToken, ReturnToken,
-                StringToken, NumberToken, IdToken, EofToken,
-                CommentToken);
+   TokenKind = (AndToken,
+                ArrayToken,
+                AssignToken,
+                BeginToken,
+                BreakToken,
+                ColonToken,
+                CommaToken,
+                CommentToken,
+                DivToken,
+                DoToken,
+                DotToken,
+                ElseIfToken,
+                ElseToken,
+                EndToken,
+                EofToken,
+                EqToken,
+                FalseToken,
+                ForToken,
+                FunctionToken,
+                GEqToken,
+                GTToken,
+                IfToken,
+                IdToken,
+                LBraceToken,
+                LBracketToken,
+                LEqToken,
+                LParenToken,
+                LTToken,
+                MinusToken,
+                ModToken,
+                MulToken, 
+                NEqToken,
+                NewToken,
+                NilToken,
+                NotToken,
+                NumberToken,
+                OfToken,
+                OrToken,  
+                PlusToken,
+                RBraceToken,
+                RBracketToken,
+                RecordToken,
+                ReturnToken,
+                RParenToken,
+                SemicolonToken,
+                StringToken,   
+                ThenToken,
+                ToToken, 
+                TrueToken, 
+                TypeToken,
+                VarToken, 
+                WhileToken);
 
 
-   PToken =  ^TToken;
    TToken = record
-      Token: TokenType;
+      Kind: TokenKind;
       Value: string;
       Line, Col: longint;
    end;
@@ -40,14 +76,16 @@ type
 
 
 function MakeScanner(FileName: String): PScanner;
-function Scan(s: PScanner): PToken;
+procedure Scan(s: PScanner);
+
+
+var
+   Token: TToken;
+
 
 implementation
 
-function Scan(s: PScanner): PToken;
-var
-   t: PToken;
-
+procedure Scan(s: PScanner);
    procedure Next;
    begin
       if s^.open then
@@ -63,21 +101,21 @@ var
                s^.x := s^.x + 1;
             end
       else
-         err('Read past end of file', t^.line, t^.col);
+         err('Read past end of file', Token.Line, Token.Col);
    end;
 
 
    procedure PushVal(c: char);
    begin
-      t^.Value := t^.Value + c;
+      Token.Value := Token.Value + c;
       Next;
    end;
 
 
-   procedure Advance(TType: TokenType);
+   procedure Advance(TType: TokenKind);
    begin
       PushVal(s^.ch);
-      t^.Token := TType;
+      Token.Kind := TType;
    end;
 
 
@@ -89,7 +127,7 @@ var
          s^.x := 0;
          Next
       end;
-   
+
    begin
       while s^.ch in [' ', chr(9), chr(13), chr(10)] do
          begin
@@ -108,17 +146,17 @@ var
 
    procedure SkipComment;
    begin
-      t^.Value := '/*';
+      Token.Value := '/*';
       repeat
          repeat
             Next;
-            t^.Value := t^.Value + s^.ch;
+            Token.Value := Token.Value + s^.ch;
          until s^.ch = '*';
          Next;
       until s^.ch = '/';
       Next;
-      t^.Value := t^.Value + '/';
-      t^.Token := CommentToken;
+      Token.Value := Token.Value + '/';
+      Token.Kind := CommentToken;
    end;
 
 
@@ -137,7 +175,7 @@ var
          else
             PushVal(s^.ch);
       until false;
-      t^.Token := StringToken;
+      Token.Kind := StringToken;
    end;
 
 
@@ -145,7 +183,7 @@ var
    begin
       while s^.ch in ['0'..'9'] do
          PushVal(s^.ch);
-      t^.Token := NumberToken;
+      Token.Kind := NumberToken;
    end;
 
 
@@ -153,46 +191,47 @@ var
    begin
       while s^.ch in ['a'..'z', 'A'..'Z', '0'..'9', '_'] do
          PushVal(s^.ch);
-      case t^.Value of 
-         'and': t^.Token := AndToken;
-         'array': t^.Token := ArrayToken;
-         'begin': t^.Token := BeginToken;
-         'break': t^.Token := BreakToken;
-         'do': t^.Token := DoToken;
-         'else': t^.Token := ElseToken;
-         'elseif': t^.Token := ElseIfToken;
-         'end': t^.Token := EndToken;
-         'false': t^.Token := FalseToken;
-         'for': t^.Token := ForToken;
-         'function': t^.Token := FunctionToken;
-         'if': t^.Token := IfToken;
-         'new': t^.Token := NewToken;
-         'nil': t^.Token := NilToken;
-         'not': t^.Token := NotToken;
-         'of': t^.Token := OfToken;
-         'or': t^.Token := OrToken;
-         'return': t^.Token := ReturnToken;
-         'then': t^.Token := ThenToken;
-         'to': t^.Token := ToToken;
-         'true': t^.Token := TrueToken;
-         'type': t^.Token := TypeToken;
-         'var': t^.Token := VarToken;
-         'while': t^.Token := WhileToken;
+      case Token.Value of 
+         'and': Token.Kind := AndToken;
+         'array': Token.Kind := ArrayToken;
+         'begin': Token.Kind := BeginToken;
+         'break': Token.Kind := BreakToken;
+         'do': Token.Kind := DoToken;
+         'else': Token.Kind := ElseToken;
+         'elseif': Token.Kind := ElseIfToken;
+         'end': Token.Kind := EndToken;
+         'false': Token.Kind := FalseToken;
+         'for': Token.Kind := ForToken;
+         'function': Token.Kind := FunctionToken;
+         'if': Token.Kind := IfToken;
+         'mod': Token.Kind := ModToken;
+         'new': Token.Kind := NewToken;
+         'nil': Token.Kind := NilToken;
+         'not': Token.Kind := NotToken;
+         'of': Token.Kind := OfToken;
+         'or': Token.Kind := OrToken;
+         'record': Token.Kind := RecordToken;
+         'return': Token.Kind := ReturnToken;
+         'then': Token.Kind := ThenToken;
+         'to': Token.Kind := ToToken;
+         'true': Token.Kind := TrueToken;
+         'type': Token.Kind := TypeToken;
+         'var': Token.Kind := VarToken;
+         'while': Token.Kind := WhileToken;
       else
-         t^.Token := IdToken;
+         Token.Kind := IdToken;
       end;
    end;
 
 begin
    SkipWhite;
-   new(t);
-   t^.Value := '';
-   t^.col := s^.x;
-   t^.line := s^.y;
+   Token.Value := '';
+   Token.Col := s^.x;
+   Token.Line := s^.y;
    if not s^.open then
       begin
-         t^.Token := EofToken;
-         t^.Value := '<EOF>';
+         Token.Kind := EofToken;
+         Token.Value := '<EOF>';
       end
    else
       begin
@@ -213,9 +252,8 @@ begin
                begin
                   PushVal('/');
                   if s^.ch = '*' then SkipComment
-                  else t^.Token := DivToken;
+                  else Token.Kind := DivToken;
                end;
-            '%': Advance(ModToken);
             '=': Advance(EqToken);
             '<':
                begin
@@ -224,29 +262,28 @@ begin
                      '>': Advance(NEqToken);
                      '=': Advance(LEqToken);
                      else
-                        t^.Token := LTToken;
+                        Token.Kind := LTToken;
                   end;
                end;
             '>':
                begin
                   PushVal('>');
                   if s^.ch = '=' then Advance(GEqToken)
-                  else t^.Token := GTToken;
+                  else Token.Kind := GTToken;
                end;
             ':':
                begin
                   PushVal(':');
                   if s^.ch = '=' then Advance(AssignToken)
-                  else t^.Token := ColonToken;
+                  else Token.Kind := ColonToken;
                end;
             '0'..'9': GetNumber;
             '''': GetString;
             'a'..'z', 'A'..'Z': GetId;
             else
-               err('Illegal token ''' + s^.ch + '''', t^.line, t^.col);
+               err('Illegal token ''' + s^.ch + '''', Token.Line, Token.Col);
          end;
       end;
-   Scan := t;
 end;
 
 

@@ -1,5 +1,8 @@
-var a: boolean; var b := 1 var c := 2 var d: number
-function doSomething(a: integer)
+var a: boolean;
+var b = 1
+var c = 2
+var d: number = 4
+function doSomething(a: integer, b: integer, c: integer)
 var b: boolean
 begin
    return a + 1

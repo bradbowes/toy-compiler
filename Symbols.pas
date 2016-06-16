@@ -10,63 +10,64 @@ type
 
 function Intern (s: String): Symbol;
 
+
 implementation
 
 const
-   hash_size = 1021;
+   HashSize = 1021;
    
 
 type
-   hash_table = array [0 .. hash_size - 1] of Symbol; 
+   HashTable = Array [0 .. HashSize - 1] of Symbol; 
 
 
 var
-   tbl : hash_table;
-   
+   Tbl : HashTable;
 
-function hash(s: String): Integer;
+
+function Hash(S: String): Integer;
 var
-   h: LongInt;
+   H: LongInt;
    i: Integer;
 begin
-   h := 31;
-   for i := 1 to length(s) do
-      h := (ord(s[i]) + (h * 37)) mod 514229;
-   hash := h mod hash_size;
+   H := 31;
+   for i := 1 to Length(S) do
+      H := (Ord(S[i]) + (H * 37)) mod 514229;
+   Hash := H mod HashSize;
 end;
 
 
-function MakeSymbol(s: String): Symbol;
-var sym: Symbol;
+function MakeSymbol(S: String): Symbol;
+var Sym: Symbol;
 begin
-  new (sym);
-  sym^.id := s;
-  MakeSymbol := sym;
+  New(Sym);
+  Sym^.Id := S;
+  MakeSymbol := Sym;
 end;
 
 
-function Intern(s: String): Symbol;
+function Intern(S: String): Symbol;
 var
-   h: integer;
-   sym: Symbol;
+   H: Integer;
+   Sym: Symbol;
 begin
-   h := hash (s);
-   if tbl[h] = nil then
+   H := Hash (S);
+   if Tbl[H] = nil then
       begin
-         tbl[h] := MakeSymbol(s);
-         sym := tbl[h];
+         Tbl[H] := MakeSymbol(S);
+         Sym := Tbl[H];
       end
    else
       begin
-         sym := tbl[h];
-         while sym^.id <> s do
+         Sym := Tbl[H];
+         while Sym^.Id <> S do
             begin
-               if sym^.next = nil then
-                  sym^.next := MakeSymbol(s);
-               sym := sym^.next;
+               if Sym^.Next = nil then
+                  Sym^.Next := MakeSymbol(S);
+               Sym := Sym^.Next;
             end;
       end;
-   Intern := sym;
+   Intern := Sym;
 end;
 
 

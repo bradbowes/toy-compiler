@@ -35,6 +35,7 @@ type
    PList = ^TList;
    TList = Object(TNode)
       First: PListItem;
+      Last: PListItem;
       Separator: SeparatorType;
       function Display: String; virtual;
    end;
@@ -69,6 +70,7 @@ begin
    new(list, init(Line, Col));
    list^.Kind := ListNode;
    list^.First := nil;
+   list^.Last := nil;
    list^.Separator := SemicolonSeparator;
    MakeList := list;
 end;
@@ -87,17 +89,18 @@ end;
 
 procedure Append(List: PList; Node: PNode);
 var
-   item, newItem: PListItem;
+   newItem: PListItem;
 begin
    newItem := MakeListItem(Node);
    if List^.First = nil then
-      List^.First := newItem
+      begin
+         List^.First := newItem;
+         List^.Last := List^.First;
+      end
    else
       begin
-         item := List^.First;
-         while item^.Next <> nil do
-            item := item^.Next;
-         item^.Next := newItem;
+         List^.Last^.Next := newItem;
+         List^.Last := newItem;
       end;
 end;
 

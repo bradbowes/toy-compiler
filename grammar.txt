@@ -17,13 +17,13 @@
 <tydec>         = 'type' <id> = <ty>.
 
 <ty>            = <id>
-                | '{' <tyfields> '}'
+                | 'record' <tyfields> 'end'
                 | 'array' 'of' <id>.
 
 <tyfields>      = [<id> ':' <id> {',' <id> ':' <id> }].
 
-<vardec>        = 'var' <id> ':=' <exp>
-                | 'var' <id> ':' <id> ':=' <exp>
+<vardec>        = 'var' <id> '=' <exp>
+                | 'var' <id> ':' <id> '=' <exp>
                 | 'var' <id> ':' <id>.
 
 <procdec>       = 'function' <id> '(' <tyfields> ')' <block>.
@@ -75,7 +75,7 @@
 
 <mulop>         = '*'
                 | '/'
-                | '%'.
+                | 'mod'.
                 
 <lvalue>        = <id>
                 | <lvalue> '.' <id>
