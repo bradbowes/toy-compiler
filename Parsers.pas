@@ -4,7 +4,7 @@ interface
 uses
    utils, Scanners, Symbols, Nodes, LiteralNodes, VarNodes,
    AssignNodes, OpNodes, IfNodes, LoopNodes, CallNodes,
-   BlockNodes, FieldNodes, DeclNodes, bindings;
+   BlockNodes, FieldNodes, DescNodes, DeclNodes, bindings;
    
 procedure Parse(FileName: String);
 
@@ -465,13 +465,11 @@ var
    function GetVarDeclaration: PNode;
    var
       Line, Col: LongInt;
-      Name, Ty: Symbol;
-      Exp: PNode;
+      Name: Symbol;
+      Ty: Symbol = nil;
+      Exp: PNode = nil;
    begin
       GetVarDeclaration := nil;
-      Name := nil;
-      Ty := nil;
-      Exp := nil;
       Line := Token.Line;
       Col := Token.Col;
       Next;
@@ -535,7 +533,8 @@ var
    function GetFunctionDeclaration: PNode;
    var
       Line, Col: LongInt;
-      Name, Ty: Symbol;
+      Name: Symbol;
+      Ty: Symbol = nil;
       Params: PList;
    begin
       Line := Token.Line;
@@ -550,12 +549,44 @@ var
          begin
             Next;
             Ty := GetIdentifier;
-         end
-      else
-         Ty := nil;
+         end;
       GetFunctionDeclaration := MakeFunDeclNode(Name, Params, Ty, GetBlock, Line, Col);
    end;
   
+
+   function GetTypeDeclaration: PNode;
+   var
+      Line, Col: LongInt;
+      Name: Symbol;
+      Desc: PNode = nil;
+   begin
+      Line := Token.Line;
+      Col := Token.Col;
+      Next;
+      Name := GetIdentifier;
+      Advance(EqToken, '=');
+      case Token.Kind of
+         LBraceToken: 
+            begin
+               Next;
+               Desc := MakeRecordDescNode(GetFieldList, Line, Col);
+               Advance(RBraceToken, '}');
+            end;
+         ArrayToken:
+            begin
+               Next;
+               Advance(OfToken, 'of');
+               Desc := MakeArrayDescNode(GetIdentifier, Line, Col);
+            end;
+         IdToken:
+            Desc := MakeNamedDescNode(GetIdentifier, Line, Col);
+         else
+            err('Expected identifier, ''record'' or ''array'', got ''' +
+                Token.Value, Token.Line, Token.Col);
+      end;
+      GetTypeDeclaration := MakeTypeDeclNode(Name, Desc, Line, Col);
+   end;
+               
 
    function GetDeclaration: PNode;
    begin
@@ -563,6 +594,7 @@ var
       case Token.Kind of
          VarToken: GetDeclaration := GetVarDeclaration;
          FunctionToken: GetDeclaration := GetFunctionDeclaration;
+         TypeToken: GetDeclaration := GetTypeDeclaration;
       else
          err('Expected declaration, got ''' + Token.Value + '''',
              Token.Line, Token.Col);

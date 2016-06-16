@@ -8,18 +8,21 @@ type
    PNamedDescNode = ^TNamedDescNode;
    TNamedDescNode = Object(TNode)
       Name: Symbol;
+      function Display: String; virtual;
    end;
 
 
    PRecordDescNode = ^TRecordDescNode;
    TRecordDescNode = Object(TNode)
       Fields: PList;
+      function Display: String; virtual;
    end;
    
 
    PArrayDescNode = ^TArrayDescNode;
    TArrayDescNode = object(TNode)
       Base: Symbol;
+      function Display: String; virtual;
    end;
    
 
@@ -38,7 +41,13 @@ begin
    n^.Kind := NamedDescNode;
    n^.Name := Name;
    MakeNamedDescNode := n;
-end;   
+end;
+
+
+function TNamedDescNode.Display: String;
+begin
+   Display := self.Name^.Id;
+end;
 
 
 function MakeRecordDescNode(Fields: PList; Line, Col: LongInt): PRecordDescNode;
@@ -52,6 +61,12 @@ begin
 end;
 
 
+function TRecordDescNode.Display: String;
+begin
+   Display := '{' + self.Fields^.Display + '}';
+end;
+
+
 function MakeArrayDescNode(
       Base: Symbol; Line, Col: LongInt): PArrayDescNode;
 var
@@ -61,6 +76,12 @@ begin
    n^.Kind := ArrayDescNode;
    n^.Base := Base;
    MakeArrayDescNode := n;
+end;
+
+
+function TArrayDescNode.Display: String;
+begin
+   Display := 'array of ' + self.Base^.Id;
 end;
 
 

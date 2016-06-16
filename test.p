@@ -1,3 +1,10 @@
+type int = integer;
+type node = {
+               value: int,
+               next: node
+            }
+type nodelist = array of node;
+               
 var a: boolean;
 var b = 1
 var c = 2

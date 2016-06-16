@@ -7,7 +7,7 @@ endif
 $(TARGET):	utils.pas Symbols.pas Scanners.pas nodes.pas LiteralNodes.pas \
         VarNodes.pas AssignNodes.pas OpNodes.pas IfNodes.pas \
         LoopNodes.pas CallNodes.pas FieldNodes.pas DeclNodes.pas \
-        BlockNodes.pas compile.pas bindings.pas Parsers.pas
+        DescNodes.pas BlockNodes.pas compile.pas bindings.pas Parsers.pas
 	fpc -Px86_64 -Sh -O3 compile
 	strip $(TARGET)
 

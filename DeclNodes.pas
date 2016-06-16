@@ -9,6 +9,7 @@ type
    TTypeDeclNode = Object(TNode)
       Name: Symbol;
       Ty: PNode;
+      function Display: String; virtual;
    end;
 
 
@@ -53,7 +54,13 @@ begin
    n^.Ty := Ty;
    MakeTypeDeclNode := n;
 end;
-   
+
+
+function TTypeDeclNode.Display: String;
+begin
+   Display := 'type ' + self.Name^.Id + ' = ' + self.Ty^.Display;
+end;
+
 
 function MakeVarDeclNode(
       Name, Ty: Symbol; Initializer: PNode; Line, Col: LongInt): PVarDeclNode;

@@ -9,18 +9,18 @@
 
 <decs>          = {<dec>}.
 
-<dec>           = <tydec>
+<dec>           = <typedec>
                 | <vardec>
                 | <fundec>
                 | <procdec>.
 
-<tydec>         = 'type' <id> = <ty>.
+<typedec>       = 'type' <id> = <typespec>.
 
-<ty>            = <id>
-                | 'record' <tyfields> 'end'
+<typespec>      = <id>
+                | '{' <fields> '}'
                 | 'array' 'of' <id>.
 
-<tyfields>      = [<id> ':' <id> {',' <id> ':' <id> }].
+<fields>      = [<id> ':' <id> {',' <id> ':' <id> }].
 
 <vardec>        = 'var' <id> '=' <exp>
                 | 'var' <id> ':' <id> '=' <exp>
@@ -28,7 +28,7 @@
 
 <procdec>       = 'function' <id> '(' <tyfields> ')' <block>.
 
-<fundec>        = 'function' <id> '(' <tyfields> ')' ':' <id> <block>.
+<fundec>        = 'function' <id> '(' <fields> ')' ':' <id> <block>.
 
 <block>         = <decs> ['begin' <seq>] 'end'.
 
