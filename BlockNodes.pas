@@ -21,7 +21,7 @@ var
    n: PBlockNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := BlockNode;
+   n^.Tag := BlockNode;
    n^.Decls := Decls;
    n^.Body := Body;      
    MakeBlockNode := n;

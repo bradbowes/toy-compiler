@@ -31,7 +31,7 @@ var
    n: PCallNode;
 begin;
    new(n, init(Line, Col));
-   n^.Kind := CallNode;
+   n^.Tag := CallNode;
    n^.Call := Call;
    n^.Args := Args;
    MakeCallNode := n;
@@ -49,7 +49,7 @@ var
    n: PReturnNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := ReturnNode;
+   n^.Tag := ReturnNode;
    n^.Value := Value;
    MakeReturnNode := n;
 end;

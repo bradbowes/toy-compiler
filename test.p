@@ -1,9 +1,7 @@
-type int = integer;
-type node = {
+type node = record (object)
                value: int,
                next: node
-            }
-type nodelist = array of node;
+            end
                
 var a: boolean;
 var b = 1

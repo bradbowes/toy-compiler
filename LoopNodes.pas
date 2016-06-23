@@ -41,7 +41,7 @@ var
    n: PWhileNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := WhileNode;
+   n^.Tag := WhileNode;
    n^.Condition := Condition;
    n^.Body := Body;
    MakeWhileNode := n;
@@ -63,7 +63,7 @@ var
    n: PForNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := ForNode;
+   n^.Tag := ForNode;
    n^.Counter := Counter;
    n^.Start := Start;
    n^.Finish := Finish;
@@ -86,7 +86,7 @@ function MakeBreakNode(Line, Col: LongInt): PBreakNode;
 var n: PBreakNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := BreakNode;
+   n^.Tag := BreakNode;
    MakeBreakNode := n;
 end;
 

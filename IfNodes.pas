@@ -33,7 +33,7 @@ var
    n: PIfElseNode;
 begin
    New(n, init(Line, Col));
-   n^.Kind := IfElseNode;
+   n^.Tag := IfElseNode;
    n^.Condition := Condition;
    n^.Consequent := Consequent;
    n^.Alternative := Alternative;
@@ -56,7 +56,7 @@ var
    n: PIfNode;
 begin
    New(n, init(Line, Col));
-   n^.Kind := IfNode;
+   n^.Tag := IfNode;
    n^.Condition := Condition;
    n^.Consequent := Consequent;
    MakeIfNode := n;

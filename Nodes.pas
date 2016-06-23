@@ -2,15 +2,15 @@ unit Nodes;
 interface
 
 type
-   NodeType = (AssignNode, CallNode, ReturnNode,
-               SimpleVarNode, FieldVarNode, IndexedVarNode,
-               IntegerNode, StringNode, BooleanNode, NilNode, 
-               TypeDeclNode, VarDeclNode, FunDeclNode,
-               NamedDescNode, RecordDescNode, ArrayDescNode,
-               UnaryOpNode, BinaryOpNode,
-               FieldNode, IfElseNode, IfNode,
-               WhileNode, ForNode, BreakNode, BlockNode,
-               ListNode);
+   NodeTag = (AssignNode, CallNode, ReturnNode,
+              SimpleVarNode, FieldVarNode, IndexedVarNode,
+              IntegerNode, StringNode, BooleanNode, NilNode, 
+              TypeDeclNode, VarDeclNode, FunDeclNode,
+              NamedDescNode, RecordDescNode, ArrayDescNode,
+              UnaryOpNode, BinaryOpNode,
+              FieldNode, IfElseNode, IfNode,
+              WhileNode, ForNode, BreakNode, BlockNode,
+              ListNode);
 
    
    SeparatorType = (SemicolonSeparator, CommaSeparator);
@@ -19,7 +19,7 @@ type
    PNode = ^TNode;
    TNode = Object
       Line, Col: LongInt;
-      Kind: NodeType;
+      Tag: NodeTag;
       constructor init(l, c: LongInt);
       function Display: String; virtual;
    end;
@@ -58,7 +58,7 @@ function TNode.Display: String;
 var
    s: String;
 begin
-   str(self.Kind, s);
+   str(self.Tag, s);
    Display := '<' + s + '>';
 end;
 
@@ -68,7 +68,7 @@ var
    list: PList;
 begin
    new(list, init(Line, Col));
-   list^.Kind := ListNode;
+   list^.Tag := ListNode;
    list^.First := nil;
    list^.Last := nil;
    list^.Separator := SemicolonSeparator;

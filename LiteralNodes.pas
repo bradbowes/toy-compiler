@@ -42,7 +42,7 @@ var
    n: PIntegerNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := IntegerNode;
+   n^.Tag := IntegerNode;
    n^.Value := Value;
    MakeIntegerNode := n;
 end;
@@ -62,7 +62,7 @@ var
    n: PStringNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := StringNode;
+   n^.Tag := StringNode;
    n^.Value := Value;
    MakeStringNode := n;
 end;
@@ -79,7 +79,7 @@ var
    n: PBooleanNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := BooleanNode;
+   n^.Tag := BooleanNode;
    n^.Value := Value;
    MakeBooleanNode := n;
 end;
@@ -99,7 +99,7 @@ var
    n: PNilNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := NilNode;
+   n^.Tag := NilNode;
    MakeNilNode := n;
 end;
 

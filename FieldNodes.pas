@@ -21,7 +21,7 @@ var
    n: PFieldNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := FieldNode;
+   n^.Tag := FieldNode;
    n^.Name := Name;
    n^.Ty := Ty;
    MakeFieldNode := n;

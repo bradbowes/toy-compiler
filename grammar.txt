@@ -16,11 +16,9 @@
 
 <typedec>       = 'type' <id> = <typespec>.
 
-<typespec>      = <id>
-                | '{' <fields> '}'
-                | 'array' 'of' <id>.
+<typespec>      = 'record' {'(' <id> ')'} <fields> 'end'.
 
-<fields>      = [<id> ':' <id> {',' <id> ':' <id> }].
+<fields>        = [<id> ':' <id> {',' <id> ':' <id> }].
 
 <vardec>        = 'var' <id> '=' <exp>
                 | 'var' <id> ':' <id> '=' <exp>
@@ -98,6 +96,5 @@
 <record>        = '{' <id> '=' <exp> {',' <id> '=' <exp>} '}'
                 | new <id>.
 
-<array>         = '[' <exp> {',' <exp>}']'
-                | 'array' '[' <exp> ']' 'of' <id>.
+<array>         = 'array' '[' <exp> {',' <exp>}']' 'of' <id>.
 
