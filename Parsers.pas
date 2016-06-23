@@ -22,7 +22,7 @@ var
    procedure Next;
    begin
       Scan(Scanner);
-      while Token.Kind = CommentToken do
+      while Token.Tag = CommentToken do
          Scan(Scanner);
    end;
    
@@ -32,7 +32,7 @@ var
    begin
       Value := Token.Value;
       GetIdentifier := nil;
-      if Token.Kind = IdToken then
+      if Token.Tag = IdToken then
          begin
             GetIdentifier := Intern(Value);
             Next;
@@ -42,9 +42,9 @@ var
    end;
 
 
-   procedure Advance(T: TokenKind; ErrDesc: String);
+   procedure Advance(T: TokenTag; ErrDesc: String);
    begin
-      if Token.Kind = T then
+      if Token.Tag = T then
          Next
       else
          err('Expected ''' + ErrDesc + ''', got ''' +
@@ -58,10 +58,10 @@ var
    begin
       List := MakeList(Token.Line, Token.Col);
       List^.Separator := CommaSeparator;
-      if Token.Kind <> RParenToken then
+      if Token.Tag <> RParenToken then
          begin
             Append(List, GetExpression);
-            while Token.Kind = CommaToken do
+            while Token.Tag = CommaToken do
                begin
                   Next;
                   Append(List, GetExpression);
@@ -86,7 +86,7 @@ var
       
    begin
       GetVariable := nil;
-      case Token.Kind of
+      case Token.Tag of
          DotToken:
             begin
                GetNext;
@@ -122,7 +122,7 @@ var
       Col := Token.Col;
       Value := Token.Value;
       GetFactor := nil;
-      case Token.Kind of
+      case Token.Tag of
          NumberToken:
             begin
                Next;
@@ -180,7 +180,7 @@ var
          end;
       
       begin
-         case Token.Kind of
+         case Token.Tag of
             MulToken: Helper := Helper(MakeMulNode(MulOp));
             DivToken: Helper := Helper(MakeMulNode(DivOp));
             ModToken: Helper := Helper(MakeMulNode(ModOp));
@@ -208,7 +208,7 @@ var
          end;
       
       begin
-         case Token.Kind of
+         case Token.Tag of
             PlusToken: Helper := Helper(MakeAddNode(PlusOp));
             MinusToken: Helper := Helper(MakeAddNode(MinusOp));
             else Helper := left;
@@ -237,7 +237,7 @@ var
       Line := Token.Line;
       Col := Token.Col;
       left := GetSum;
-      case Token.Kind of
+      case Token.Tag of
          EqToken: GetBoolean := MakeCompareNode(EqOp);
          NEqToken: GetBoolean := MakeCompareNode(NEqOp);
          LTToken: GetBoolean := MakeCompareNode(LTOp);
@@ -255,7 +255,7 @@ var
    begin
       Line := Token.Line;
       Col := Token.Col;
-      if Token.Kind = NotToken then
+      if Token.Tag = NotToken then
          begin
             Next;
             GetNegation := MakeUnaryOpNode(NotOp, GetBoolean, Line, Col);
@@ -271,7 +271,7 @@ var
       
       function Helper(left: PNode): PNode;
       begin
-         if Token.Kind = AndToken then
+         if Token.Tag = AndToken then
             begin
                Next;
                Helper := Helper(MakeBinaryOpNode(
@@ -294,7 +294,7 @@ var
       
       function Helper(left: PNode): PNode;
       begin
-         if Token.Kind = OrToken then
+         if Token.Tag = OrToken then
             begin
                Next;
                Helper := Helper(
@@ -324,7 +324,7 @@ var
       Condition := GetExpression;
       Advance(ThenToken, 'then');
       Consequent := GetSequence;
-      if Token.Kind = ElseToken then
+      if Token.Tag = ElseToken then
          begin
             Next;
             GetIfStatement := MakeIfElseNode(
@@ -346,11 +346,11 @@ var
       Col := Token.Col;
       Next;
       Condition := GetExpression;
-      if Token.Kind = DoToken then
+      if Token.Tag = DoToken then
          begin
             Next;
             GetWhileStatement := MakeWhileNode(Condition, GetSequence, Line, Col);
-            if Token.Kind = EndToken then
+            if Token.Tag = EndToken then
                Next
             else
                err('Expected ''end'', got ''' + Token.Value + '''',
@@ -409,7 +409,7 @@ var
    function GetAssignment(left: PNode): PNode;
    begin
       GetAssignment := nil;
-      if Token.Kind = AssignToken then
+      if Token.Tag = AssignToken then
          begin
             Next;
             GetAssignment := MakeAssignNode(
@@ -425,7 +425,7 @@ var
       exp: PNode;
    begin
       GetStatement := nil;
-      case Token.Kind of
+      case Token.Tag of
          IfToken: GetStatement := GetIfStatement;
          WhileToken: GetStatement := GetWhileStatement;
          ForToken: GetStatement := GetForStatement;
@@ -436,7 +436,7 @@ var
                exp := GetExpression;
                if IsVarNode(exp) then
                   GetStatement := GetAssignment(exp)
-               else if exp^.Kind = CallNode then
+               else if exp^.Tag = CallNode then
                   GetStatement := exp
                else
                   err('Illegal expression', exp^.Line, exp^.Col);
@@ -445,7 +445,7 @@ var
             err('Expected statement, got ''' + Token.Value + '''',
                 Token.Line, Token.Col);
       end;
-      if Token.Kind = SemicolonToken then
+      if Token.Tag = SemicolonToken then
          Next;
    end; { GetStatement }
 
@@ -455,7 +455,7 @@ var
       Seq: PList;
    begin
       Seq := MakeList(Token.Line, Token.Col);
-      while Token.Kind in [IfToken, WhileToken, ForToken, BreakToken,
+      while Token.Tag in [IfToken, WhileToken, ForToken, BreakToken,
                              ReturnToken, IdToken] do
          Append(Seq, GetStatement);
       GetSequence := Seq;
@@ -474,12 +474,12 @@ var
       Col := Token.Col;
       Next;
       Name := GetIdentifier;
-      case Token.Kind of
+      case Token.Tag of
          ColonToken:
             begin
                Next;
                Ty := GetIdentifier;
-               if Token.Kind = EqToken then
+               if Token.Tag = EqToken then
                   begin
                      Next;
                      Exp := GetExpression;
@@ -517,10 +517,10 @@ var
    begin
       List := MakeList(Token.Line, Token.Col);
       List^.Separator := CommaSeparator;
-      if not (Token.Kind in [RParenToken, RBraceToken]) then
+      if not (Token.Tag in [RParenToken, RBraceToken]) then
          begin
             Append(List, GetField);
-            while Token.Kind = CommaToken do
+            while Token.Tag = CommaToken do
                begin
                   Next;
                   Append(List, GetField);
@@ -545,7 +545,7 @@ var
       Advance(LParenToken, '(');
       Params := GetFieldList;
       Advance(RParenToken, ')');
-      if Token.Kind = ColonToken then
+      if Token.Tag = ColonToken then
          begin
             Next;
             Ty := GetIdentifier;
@@ -557,33 +557,30 @@ var
    function GetTypeDeclaration: PNode;
    var
       Line, Col: LongInt;
-      Name: Symbol;
+      Name, Parent: Symbol;
       Desc: PNode = nil;
    begin
       Line := Token.Line;
       Col := Token.Col;
+      Parent := nil;
       Next;
       Name := GetIdentifier;
       Advance(EqToken, '=');
-      case Token.Kind of
-         LBraceToken: 
-            begin
-               Next;
-               Desc := MakeRecordDescNode(GetFieldList, Line, Col);
-               Advance(RBraceToken, '}');
-            end;
-         ArrayToken:
-            begin
-               Next;
-               Advance(OfToken, 'of');
-               Desc := MakeArrayDescNode(GetIdentifier, Line, Col);
-            end;
-         IdToken:
-            Desc := MakeNamedDescNode(GetIdentifier, Line, Col);
-         else
-            err('Expected identifier, ''record'' or ''array'', got ''' +
-                Token.Value, Token.Line, Token.Col);
-      end;
+      if Token.Tag = RecordToken then
+         begin
+            Next;
+            if Token.Tag = LParenToken then
+               begin
+                  Next;
+                  Parent := GetIdentifier;
+                  Advance(RParenToken, ')');
+               end;
+               Desc := MakeRecordDescNode(Parent, GetFieldList, Line, Col);
+               Advance(EndToken, 'end');
+            end
+      else
+         err('Expected ''record'', got ''' +
+             Token.Value, Token.Line, Token.Col);
       GetTypeDeclaration := MakeTypeDeclNode(Name, Desc, Line, Col);
    end;
                
@@ -591,7 +588,7 @@ var
    function GetDeclaration: PNode;
    begin
       GetDeclaration := nil;
-      case Token.Kind of
+      case Token.Tag of
          VarToken: GetDeclaration := GetVarDeclaration;
          FunctionToken: GetDeclaration := GetFunctionDeclaration;
          TypeToken: GetDeclaration := GetTypeDeclaration;
@@ -599,7 +596,7 @@ var
          err('Expected declaration, got ''' + Token.Value + '''',
              Token.Line, Token.Col);
       end;
-      if Token.Kind = SemicolonToken then
+      if Token.Tag = SemicolonToken then
          Next;
    end;
 
@@ -609,7 +606,7 @@ var
       Decls: PList;
    begin
       Decls := MakeList(Token.Line, Token.Col);
-      while Token.Kind in [VarToken, FunctionToken, TypeToken] do
+      while Token.Tag in [VarToken, FunctionToken, TypeToken] do
          Append(Decls, GetDeclaration);
       GetDeclarationList := Decls
    end;
@@ -625,7 +622,7 @@ var
       Col := Token.Col;
       Decls := GetDeclarationList;
       
-      if Token.Kind = BeginToken then
+      if Token.Tag = BeginToken then
          begin
             Next;
             Body := GetSequence;

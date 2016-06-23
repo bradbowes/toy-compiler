@@ -23,7 +23,7 @@ function MakeAssignNode(
 var n: PAssignNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := AssignNode;
+   n^.Tag := AssignNode;
    n^.Variable := Variable;
    n^.Expression := Expression;
    MakeAssignNode := n;

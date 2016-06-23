@@ -49,7 +49,7 @@ var
    n: PTypeDeclNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := TypeDeclNode;
+   n^.Tag := TypeDeclNode;
    n^.Name := Name;
    n^.Ty := Ty;
    MakeTypeDeclNode := n;
@@ -68,7 +68,7 @@ var
    n: PVarDeclNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := VarDeclNode;
+   n^.Tag := VarDeclNode;
    n^.Name := Name;
    n^.Ty := Ty;
    n^.Initializer := Initializer;
@@ -96,7 +96,7 @@ var
    n: PFunDeclNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := FunDeclNode;
+   n^.Tag := FunDeclNode;
    n^.Name := Name;
    n^.Params := Params;
    n^.Ty := Ty;

@@ -37,7 +37,7 @@ var
    n: PUnaryOpNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := UnaryOpNode;
+   n^.Tag := UnaryOpNode;
    n^.Op := Op;
    n^.Expression := Expression;
    MakeUnaryOpNode := n;
@@ -60,7 +60,7 @@ var
    n: PBinaryOpNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := BinaryOpNode;
+   n^.Tag := BinaryOpNode;
    n^.Op := Op;
    n^.Left := Left;
    n^.Right := Right;

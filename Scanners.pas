@@ -5,62 +5,62 @@ interface
 uses utils;
 
 type 
-   TokenKind = (AndToken,
-                ArrayToken,
-                AssignToken,
-                BeginToken,
-                BreakToken,
-                ColonToken,
-                CommaToken,
-                CommentToken,
-                DivToken,
-                DoToken,
-                DotToken,
-                ElseIfToken,
-                ElseToken,
-                EndToken,
-                EofToken,
-                EqToken,
-                FalseToken,
-                ForToken,
-                FunctionToken,
-                GEqToken,
-                GTToken,
-                IfToken,
-                IdToken,
-                LBraceToken,
-                LBracketToken,
-                LEqToken,
-                LParenToken,
-                LTToken,
-                MinusToken,
-                ModToken,
-                MulToken, 
-                NEqToken,
-                NewToken,
-                NilToken,
-                NotToken,
-                NumberToken,
-                OfToken,
-                OrToken,  
-                PlusToken,
-                RBraceToken,
-                RBracketToken,
-                RecordToken,
-                ReturnToken,
-                RParenToken,
-                SemicolonToken,
-                StringToken,   
-                ThenToken,
-                ToToken, 
-                TrueToken, 
-                TypeToken,
-                VarToken, 
-                WhileToken);
+   TokenTag = (AndToken,
+               ArrayToken,
+               AssignToken,
+               BeginToken,
+               BreakToken,
+               ColonToken,
+               CommaToken,
+               CommentToken,
+               DivToken,
+               DoToken,
+               DotToken,
+               ElseIfToken,
+               ElseToken,
+               EndToken,
+               EofToken,
+               EqToken,
+               FalseToken,
+               ForToken,
+               FunctionToken,
+               GEqToken,
+               GTToken,
+               IfToken,
+               IdToken,
+               LBraceToken,
+               LBracketToken,
+               LEqToken,
+               LParenToken,
+               LTToken,
+               MinusToken,
+               ModToken,
+               MulToken, 
+               NEqToken,
+               NewToken,
+               NilToken,
+               NotToken,
+               NumberToken,
+               OfToken,
+               OrToken,  
+               PlusToken,
+               RBraceToken,
+               RBracketToken,
+               RecordToken,
+               ReturnToken,
+               RParenToken,
+               SemicolonToken,
+               StringToken,   
+               ThenToken,
+               ToToken, 
+               TrueToken, 
+               TypeToken,
+               VarToken, 
+               WhileToken);
 
 
    TToken = record
-      Kind: TokenKind;
+      Tag: TokenTag;
       Value: string;
       Line, Col: longint;
    end;
@@ -112,10 +112,10 @@ procedure Scan(s: PScanner);
    end;
 
 
-   procedure Advance(TType: TokenKind);
+   procedure Advance(TType: TokenTag);
    begin
       PushVal(s^.ch);
-      Token.Kind := TType;
+      Token.Tag := TType;
    end;
 
 
@@ -156,7 +156,7 @@ procedure Scan(s: PScanner);
       until s^.ch = '/';
       Next;
       Token.Value := Token.Value + '/';
-      Token.Kind := CommentToken;
+      Token.Tag := CommentToken;
    end;
 
 
@@ -175,7 +175,7 @@ procedure Scan(s: PScanner);
          else
             PushVal(s^.ch);
       until false;
-      Token.Kind := StringToken;
+      Token.Tag := StringToken;
    end;
 
 
@@ -183,7 +183,7 @@ procedure Scan(s: PScanner);
    begin
       while s^.ch in ['0'..'9'] do
          PushVal(s^.ch);
-      Token.Kind := NumberToken;
+      Token.Tag := NumberToken;
    end;
 
 
@@ -192,34 +192,34 @@ procedure Scan(s: PScanner);
       while s^.ch in ['a'..'z', 'A'..'Z', '0'..'9', '_'] do
          PushVal(s^.ch);
       case Token.Value of 
-         'and': Token.Kind := AndToken;
-         'array': Token.Kind := ArrayToken;
-         'begin': Token.Kind := BeginToken;
-         'break': Token.Kind := BreakToken;
-         'do': Token.Kind := DoToken;
-         'else': Token.Kind := ElseToken;
-         'elseif': Token.Kind := ElseIfToken;
-         'end': Token.Kind := EndToken;
-         'false': Token.Kind := FalseToken;
-         'for': Token.Kind := ForToken;
-         'function': Token.Kind := FunctionToken;
-         'if': Token.Kind := IfToken;
-         'mod': Token.Kind := ModToken;
-         'new': Token.Kind := NewToken;
-         'nil': Token.Kind := NilToken;
-         'not': Token.Kind := NotToken;
-         'of': Token.Kind := OfToken;
-         'or': Token.Kind := OrToken;
-         'record': Token.Kind := RecordToken;
-         'return': Token.Kind := ReturnToken;
-         'then': Token.Kind := ThenToken;
-         'to': Token.Kind := ToToken;
-         'true': Token.Kind := TrueToken;
-         'type': Token.Kind := TypeToken;
-         'var': Token.Kind := VarToken;
-         'while': Token.Kind := WhileToken;
+         'and': Token.Tag := AndToken;
+         'array': Token.Tag := ArrayToken;
+         'begin': Token.Tag := BeginToken;
+         'break': Token.Tag := BreakToken;
+         'do': Token.Tag := DoToken;
+         'else': Token.Tag := ElseToken;
+         'elseif': Token.Tag := ElseIfToken;
+         'end': Token.Tag := EndToken;
+         'false': Token.Tag := FalseToken;
+         'for': Token.Tag := ForToken;
+         'function': Token.Tag := FunctionToken;
+         'if': Token.Tag := IfToken;
+         'mod': Token.Tag := ModToken;
+         'new': Token.Tag := NewToken;
+         'nil': Token.Tag := NilToken;
+         'not': Token.Tag := NotToken;
+         'of': Token.Tag := OfToken;
+         'or': Token.Tag := OrToken;
+         'record': Token.Tag := RecordToken;
+         'return': Token.Tag := ReturnToken;
+         'then': Token.Tag := ThenToken;
+         'to': Token.Tag := ToToken;
+         'true': Token.Tag := TrueToken;
+         'type': Token.Tag := TypeToken;
+         'var': Token.Tag := VarToken;
+         'while': Token.Tag := WhileToken;
       else
-         Token.Kind := IdToken;
+         Token.Tag := IdToken;
       end;
    end;
 
@@ -230,7 +230,7 @@ begin
    Token.Line := s^.y;
    if not s^.open then
       begin
-         Token.Kind := EofToken;
+         Token.Tag := EofToken;
          Token.Value := '<EOF>';
       end
    else
@@ -252,7 +252,7 @@ begin
                begin
                   PushVal('/');
                   if s^.ch = '*' then SkipComment
-                  else Token.Kind := DivToken;
+                  else Token.Tag := DivToken;
                end;
             '=': Advance(EqToken);
             '<':
@@ -262,20 +262,20 @@ begin
                      '>': Advance(NEqToken);
                      '=': Advance(LEqToken);
                      else
-                        Token.Kind := LTToken;
+                        Token.Tag := LTToken;
                   end;
                end;
             '>':
                begin
                   PushVal('>');
                   if s^.ch = '=' then Advance(GEqToken)
-                  else Token.Kind := GTToken;
+                  else Token.Tag := GTToken;
                end;
             ':':
                begin
                   PushVal(':');
                   if s^.ch = '=' then Advance(AssignToken)
-                  else Token.Kind := ColonToken;
+                  else Token.Tag := ColonToken;
                end;
             '0'..'9': GetNumber;
             '''': GetString;

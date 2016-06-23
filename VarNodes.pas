@@ -40,7 +40,7 @@ var
    n: PSimpleVarNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := SimpleVarNode;
+   n^.Tag := SimpleVarNode;
    n^.Sym := Sym;
    MakeSimpleVarNode := n;
 end;
@@ -58,7 +58,7 @@ var
    n: PFieldVarNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := FieldVarNode;
+   n^.Tag := FieldVarNode;
    n^.Variable := Variable;
    n^.Field := Field;
    MakeFieldVarNode := n;
@@ -77,7 +77,7 @@ var
    n: PIndexedVarNode;
 begin
    new(n, init(Line, Col));
-   n^.Kind := IndexedVarNode;
+   n^.Tag := IndexedVarNode;
    n^.Variable := Variable;
    n^.Index := Index;
    MakeIndexedVarNode := n;
@@ -92,7 +92,7 @@ end;
 
 function IsVarNode(Node: PNode): Boolean;
 begin
-   IsVarNode := Node^.Kind in [SimpleVarNode, FieldVarNode, IndexedVarNode];
+   IsVarNode := Node^.Tag in [SimpleVarNode, FieldVarNode, IndexedVarNode];
 end;
 
 
