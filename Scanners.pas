@@ -46,7 +46,6 @@ type
                 PlusToken,
                 RBraceToken,
                 RBracketToken,
-                RecordToken,
                 ReturnToken,
                 RParenToken,
                 SemicolonToken,
@@ -210,7 +209,6 @@ procedure Scan(s: PScanner);
          'not': Token.Kind := NotToken;
          'of': Token.Kind := OfToken;
          'or': Token.Kind := OrToken;
-         'record': Token.Kind := RecordToken;
          'return': Token.Kind := ReturnToken;
          'then': Token.Kind := ThenToken;
          'to': Token.Kind := ToToken;

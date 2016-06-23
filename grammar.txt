@@ -99,5 +99,5 @@
                 | new <id>.
 
 <array>         = '[' <exp> {',' <exp>}']'
-                | new <id> '[' <exp> ']'.
+                | 'array' '[' <exp> ']' 'of' <id>.
 

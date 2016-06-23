@@ -48,7 +48,7 @@ var
          Next
       else
          err('Expected ''' + ErrDesc + ''', got ''' +
-             Token.Value, Token.Line, Token.Col);
+             Token.Value + '''', Token.Line, Token.Col);
    end;
 
 
@@ -346,19 +346,9 @@ var
       Col := Token.Col;
       Next;
       Condition := GetExpression;
-      if Token.Kind = DoToken then
-         begin
-            Next;
-            GetWhileStatement := MakeWhileNode(Condition, GetSequence, Line, Col);
-            if Token.Kind = EndToken then
-               Next
-            else
-               err('Expected ''end'', got ''' + Token.Value + '''',
-                   Token.Line, Token.Col);
-         end
-      else
-         err('Expected ''do'', got ''' + Token.Value + '''',
-             Token.Line, Token.Col);
+      Advance(DoToken, 'do');
+      GetWhileStatement := MakeWhileNode(Condition, GetSequence, Line, Col);
+      Advance(EndToken, 'end');
    end;
 
 
@@ -409,14 +399,8 @@ var
    function GetAssignment(left: PNode): PNode;
    begin
       GetAssignment := nil;
-      if Token.Kind = AssignToken then
-         begin
-            Next;
-            GetAssignment := MakeAssignNode(
-                  left, GetExpression, left^.Line, left ^.Col);
-         end
-      else
-         err('Expected assignment or procedure call', left^.Line, left^.Col)
+      Advance(AssignToken, ':=');
+      GetAssignment := MakeAssignNode(left, GetExpression, left^.Line, left ^.Col);
    end;
 
 
@@ -550,6 +534,8 @@ var
             Next;
             Ty := GetIdentifier;
          end;
+      if Token.Kind = SemiColonToken then
+         Next;
       GetFunctionDeclaration := MakeFunDeclNode(Name, Params, Ty, GetBlock, Line, Col);
    end;
   
@@ -582,7 +568,7 @@ var
             Desc := MakeNamedDescNode(GetIdentifier, Line, Col);
          else
             err('Expected identifier, ''record'' or ''array'', got ''' +
-                Token.Value, Token.Line, Token.Col);
+                Token.Value + '''', Token.Line, Token.Col);
       end;
       GetTypeDeclaration := MakeTypeDeclNode(Name, Desc, Line, Col);
    end;
