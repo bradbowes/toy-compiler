@@ -42,12 +42,12 @@ var
    end;
 
 
-   procedure Advance(T: TokenTag; ErrDesc: String);
+   procedure Advance(T: TokenTag);
    begin
       if Token.Tag = T then
          Next
       else
-         err('Expected ''' + ErrDesc + ''', got ''' +
+         err('Expected ''' + TokenDisplay[T] + ''', got ''' +
              Token.Value + '''', Token.Line, Token.Col);
    end;
 
@@ -97,14 +97,14 @@ var
             begin
                GetNext;
                Node := GetExpression;
-               Advance(RBracketToken, ']');
+               Advance(RBracketToken);
                GetVariable := GetVariable(MakeIndexedVarNode(Variable, Node, Line, Col));
             end;
          LParenToken:
             begin
                GetNext;
                Node := GetExpressionList;
-               Advance(RParenToken, ')');
+               Advance(RParenToken);
                GetVariable := MakeCallNode(Variable, PList(Node), Line, Col);
             end;
          else
@@ -322,7 +322,7 @@ var
       Col := Token.Col;
       Next;
       Condition := GetExpression;
-      Advance(ThenToken, 'then');
+      Advance(ThenToken);
       Consequent := GetSequence;
       if Token.Tag = ElseToken then
          begin
@@ -332,7 +332,7 @@ var
          end
       else
          GetIfStatement := MakeIfNode(Condition, Consequent, Line, Col);
-      Advance(EndToken, 'end');
+      Advance(EndToken);
    end;
 
 
@@ -346,9 +346,9 @@ var
       Col := Token.Col;
       Next;
       Condition := GetExpression;
-      Advance(DoToken, 'do');
+      Advance(DoToken);
       GetWhileStatement := MakeWhileNode(Condition, GetSequence, Line, Col);
-      Advance(EndToken, 'end');
+      Advance(EndToken);
    end;
 
 
@@ -363,14 +363,14 @@ var
       Col := Token.Col;
       Next;
       Counter := GetIdentifier;
-      Advance(AssignToken, ':=');
+      Advance(AssignToken);
       Start := GetExpression;
-      Advance(ToToken, 'to');
+      Advance(ToToken);
       Finish := GetExpression;
-      Advance(DoToken, 'do');
+      Advance(DoToken);
       GetForStatement := MakeForNode(
             Counter, Start, Finish, GetSequence, Line, Col);
-      Advance(EndToken, 'end');
+      Advance(EndToken);
    end;
 
 
@@ -399,7 +399,7 @@ var
    function GetAssignment(left: PNode): PNode;
    begin
       GetAssignment := nil;
-      Advance(AssignToken, ':=');
+      Advance(AssignToken);
       GetAssignment := MakeAssignNode(left, GetExpression, left^.Line, left ^.Col);
    end;
 
@@ -490,7 +490,7 @@ var
       Line := Token.Line;
       Col := Token.Col;
       Name := GetIdentifier;
-      Advance(ColonToken, ':');
+      Advance(ColonToken);
       GetField := MakeFieldNode(Name, GetIdentifier, Line, Col);
    end;
 
@@ -526,9 +526,9 @@ var
       GetFunctionDeclaration := nil;
       Next;
       Name := GetIdentifier;
-      Advance(LParenToken, '(');
+      Advance(LParenToken);
       Params := GetFieldList;
-      Advance(RParenToken, ')');
+      Advance(RParenToken);
       if Token.Tag = ColonToken then
          begin
             Next;
@@ -551,7 +551,7 @@ var
       Parent := nil;
       Next;
       Name := GetIdentifier;
-      Advance(EqToken, '=');
+      Advance(EqToken);
       if Token.Tag = RecordToken then
          begin
             Next;
@@ -559,10 +559,10 @@ var
                begin
                   Next;
                   Parent := GetIdentifier;
-                  Advance(RParenToken, ')');
+                  Advance(RParenToken);
                end;
                Desc := MakeRecordDescNode(Parent, GetFieldList, Line, Col);
-               Advance(EndToken, 'end');
+               Advance(EndToken);
             end
       else
          err('Expected ''record'', got ''' +
@@ -615,7 +615,7 @@ var
          end
       else
          Body := MakeList(Token.Line, Token.Col);
-      Advance(EndToken, 'end');
+      Advance(EndToken);
       GetBlock := MakeBlockNode(Decls, Body, Line, Col);
    end;
       

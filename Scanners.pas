@@ -81,6 +81,7 @@ procedure Scan(s: PScanner);
 
 var
    Token: TToken;
+   TokenDisplay: array[AndToken..WhileToken] of String;
 
 
 implementation
@@ -300,4 +301,58 @@ begin
    MakeScanner := s;
 end;
 
+
+begin
+   TokenDisplay[AndToken] := 'and';
+   TokenDisplay[ArrayToken] := 'array';
+   TokenDisplay[AssignToken] := ':=';
+   TokenDisplay[BeginToken] := 'begin';
+   TokenDisplay[BreakToken] := 'break';
+   TokenDisplay[ColonToken] := ':';
+   TokenDisplay[CommaToken] := ',';
+   TokenDisplay[CommentToken] := '';
+   TokenDisplay[DivToken] := '/';   
+   TokenDisplay[DoToken] := 'do';
+   TokenDisplay[DotToken] := '.';
+   TokenDisplay[ElseIfToken] := 'elseif';
+   TokenDisplay[ElseToken] := 'else';
+   TokenDisplay[EndToken] := 'end';
+   TokenDisplay[EofToken] := '';
+   TokenDisplay[EqToken] := '=';
+   TokenDisplay[FalseToken] := 'false';
+   TokenDisplay[ForToken] := 'for';
+   TokenDisplay[FunctionToken] := 'function';
+   TokenDisplay[GEqToken] := '>=';
+   TokenDisplay[GTToken] := '>';
+   TokenDisplay[IfToken] := 'if';
+   TokenDisplay[IdToken] := '';
+   TokenDisplay[LBraceToken] := '{';
+   TokenDisplay[LBracketToken] := '[';
+   TokenDisplay[LEqToken] := '<=';
+   TokenDisplay[LParenToken] := '(';
+   TokenDisplay[LTToken] := '<';
+   TokenDisplay[MinusToken] := '-';
+   TokenDisplay[ModToken] := 'mod';
+   TokenDisplay[MulToken] := '*';
+   TokenDisplay[NEqToken] := '<>';
+   TokenDisplay[NewToken] := 'new';
+   TokenDisplay[NilToken] := 'nil';
+   TokenDisplay[NotToken] := 'not';
+   TokenDisplay[NumberToken] := '';
+   TokenDisplay[OfToken] := 'of';
+   TokenDisplay[OrToken] := 'or';
+   TokenDisplay[PlusToken] := '+';
+   TokenDisplay[RBraceToken] := '}';
+   TokenDisplay[RBracketToken] := ']';
+   TokenDisplay[RecordToken] := 'record';
+   TokenDisplay[ReturnToken] := 'return';
+   TokenDisplay[RParenToken] := ')';
+   TokenDisplay[SemicolonToken] := ';';
+   TokenDisplay[StringToken] := '';
+   TokenDisplay[ThenToken] := 'then';
+   TokenDisplay[ToToken] := 'to';
+   TokenDisplay[TrueToken] := 'true';
+   TokenDisplay[TypeToken] := 'type';
+   TokenDisplay[VarToken] := 'var';
+   TokenDisplay[WhileToken] := 'while';
 end.

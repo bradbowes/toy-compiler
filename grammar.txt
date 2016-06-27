@@ -16,15 +16,17 @@
 
 <typedec>       = 'type' <id> = <typespec>.
 
-<typespec>      = 'record' {'(' <id> ')'} <fields> 'end'.
+<typespec>      = <id>
+                | 'record' ['(' <id> ')'] <fields> 'end'
+                | 'array' [<exp> {',' <exp>}] 'of' <typespec>.
 
-<fields>        = [<id> ':' <id> {',' <id> ':' <id> }].
+<fields>        = [<id> ':' <typespec> {',' <id> ':' <typespec> }].
 
 <vardec>        = 'var' <id> '=' <exp>
                 | 'var' <id> ':' <id> '=' <exp>
                 | 'var' <id> ':' <id>.
 
-<procdec>       = 'function' <id> '(' <tyfields> ')' <block>.
+<procdec>       = 'function' <id> '(' <fields> ')' <block>.
 
 <fundec>        = 'function' <id> '(' <fields> ')' ':' <id> <block>.
 
@@ -77,7 +79,7 @@
                 
 <lvalue>        = <id>
                 | <lvalue> '.' <id>
-                | <lvalue> '[' <exp> ']'.
+                | <lvalue> '[' <exp> {',' <exp>} ']'.
 
 <factor>        = <lvalue>
                 | 'nil'
@@ -88,13 +90,7 @@
                 | <string>
                 | '-' <factor>
                 | <call>
-                | <record>
-                | <array>.
+                | '{' <id> '=' <exp> {',' <id> '=' <exp>} '}'
+                | '[' <exp> {',' <exp>} ']'.
 
 <call>          = <lvalue> '(' [<exp> {',' <exp>}] ')'.
-
-<record>        = '{' <id> '=' <exp> {',' <id> '=' <exp>} '}'
-                | new <id>.
-
-<array>         = 'array' '[' <exp> {',' <exp>}']' 'of' <id>.
-

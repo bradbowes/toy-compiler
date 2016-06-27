@@ -10,7 +10,7 @@ var d: number = 4
 function doSomething(a: integer, b: integer, c: integer);
 var b: boolean
 begin
-   return a + 1
+   return a + 1 + 2
 end
 
 begin
