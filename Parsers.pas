@@ -86,6 +86,8 @@ var
       
    begin
       GetVariable := nil;
+      Line := Variable^.Line;
+      Col := Variable^.Col;
       case Token.Tag of
          DotToken:
             begin
@@ -249,7 +251,7 @@ var
    end;
    
    
-   function GetNegation: PNode;
+   function GetComplement: PNode;
    var
       Line, Col: LongInt;
    begin
@@ -258,10 +260,10 @@ var
       if Token.Tag = NotToken then
          begin
             Next;
-            GetNegation := MakeUnaryOpNode(NotOp, GetBoolean, Line, Col);
+            GetComplement := MakeUnaryOpNode(NotOp, GetBoolean, Line, Col);
          end
       else
-         GetNegation := GetBoolean
+         GetComplement := GetBoolean
    end;
    
 
@@ -275,7 +277,7 @@ var
             begin
                Next;
                Helper := Helper(MakeBinaryOpNode(
-                     AndOp, left, GetNegation, Line, Col));
+                     AndOp, left, GetComplement, Line, Col));
             end
          else
             Helper := left;
@@ -284,7 +286,7 @@ var
    begin
       Line := Token.Line;
       Col := Token.Col;
-      GetConjunction := Helper(GetNegation);
+      GetConjunction := Helper(GetComplement);
    end;
 
 

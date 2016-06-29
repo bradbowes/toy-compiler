@@ -11,24 +11,22 @@
 
 <dec>           = <typedec>
                 | <vardec>
-                | <fundec>
-                | <procdec>.
+                | <fundec>.
 
-<typedec>       = 'type' <id> = <typespec>.
+<typedec>       = 'type' <id> '=' <typespec>.
 
 <typespec>      = <id>
                 | 'record' ['(' <id> ')'] <fields> 'end'
-                | 'array' [<exp> {',' <exp>}] 'of' <typespec>.
+                | 'array' 'of' <typespec>
+                | 'function' '(' <fields> ')' [':' <id>].
 
 <fields>        = [<id> ':' <typespec> {',' <id> ':' <typespec> }].
 
 <vardec>        = 'var' <id> '=' <exp>
-                | 'var' <id> ':' <id> '=' <exp>
-                | 'var' <id> ':' <id>.
+                | 'var' <id> ':' <typespec> '=' <exp>
+                | 'var' <id> ':' <typespec>.
 
-<procdec>       = 'function' <id> '(' <fields> ')' <block>.
-
-<fundec>        = 'function' <id> '(' <fields> ')' ':' <id> <block>.
+<fundec>        = 'function' <id> '(' <fields> ')' [':' <id>] <block>.
 
 <block>         = <decs> ['begin' <seq>] 'end'.
 
@@ -50,10 +48,10 @@
 <disjunction>   = <conjunction>
                 | <disjunction> 'or' <conjunction>.
 
-<conjunction>   = <negation>
-                | <conjunction> 'and' <negation>.
+<conjunction>   = <complement>
+                | <conjunction> 'and' <complement>.
                 
-<negation>      = ['not'] <bool>.
+<complement>    = ['not'] <bool>.
                 
 <bool>          = <sum> [ <relop> <sum> ].
 
@@ -79,7 +77,7 @@
                 
 <lvalue>        = <id>
                 | <lvalue> '.' <id>
-                | <lvalue> '[' <exp> {',' <exp>} ']'.
+                | <lvalue> '[' <exp> ']'.
 
 <factor>        = <lvalue>
                 | 'nil'
@@ -90,7 +88,6 @@
                 | <string>
                 | '-' <factor>
                 | <call>
-                | '{' <id> '=' <exp> {',' <id> '=' <exp>} '}'
-                | '[' <exp> {',' <exp>} ']'.
+                | 'new' <id> {'[' <exp> ']'}.
 
 <call>          = <lvalue> '(' [<exp> {',' <exp>}] ')'.
