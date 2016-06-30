@@ -18,6 +18,8 @@ var
    function GetExpression: PNode; forward;
    function GetSequence: PList; forward;
    function GetBlock: PNode; forward;
+   function GetTypeSpec: PNode; forward;
+
    
    procedure Next;
    begin
@@ -452,7 +454,7 @@ var
    var
       Line, Col: LongInt;
       Name: Symbol;
-      Ty: Symbol = nil;
+      Ty: PNode = nil;
       Exp: PNode = nil;
    begin
       GetVarDeclaration := nil;
@@ -464,7 +466,7 @@ var
          ColonToken:
             begin
                Next;
-               Ty := GetIdentifier;
+               Ty := GetTypeSpec;
                if Token.Tag = EqToken then
                   begin
                      Next;
@@ -493,7 +495,7 @@ var
       Col := Token.Col;
       Name := GetIdentifier;
       Advance(ColonToken);
-      GetField := MakeFieldNode(Name, GetIdentifier, Line, Col);
+      GetField := MakeFieldNode(Name, GetTypeSpec, Line, Col);
    end;
 
    
@@ -516,11 +518,48 @@ var
    end;
   
 
+   function GetTypeSpec: PNode;
+   var
+      Line, Col: LongInt;
+      Parent: Symbol = nil;
+      Desc: PNode = nil;
+   begin
+      Line := Token.Line;
+      Col := Token.Col;
+      case Token.Tag of
+         RecordToken: 
+            begin
+               Next;
+               if Token.Tag = LParenToken then
+                  begin
+                     Next;
+                     Parent := GetIdentifier;
+                     Advance(RParenToken);
+                  end;
+                  Desc := MakeRecordDescNode(Parent, GetFieldList, Line, Col);
+                  Advance(EndToken);
+               end;
+         ArrayToken:
+            begin
+               Next;
+               Advance(OfToken);
+               Desc := MakeArrayDescNode(GetTypeSpec(), Line, Col);
+            end;
+         IdToken:
+            Desc := MakeNamedDescNode(GetIdentifier, Line, Col);
+         else
+            err('Expected type spec, got ''' +
+               Token.Value, Token.Line, Token.Col);
+      end;
+      GetTypeSpec := Desc;
+   end;
+
+
    function GetFunctionDeclaration: PNode;
    var
       Line, Col: LongInt;
       Name: Symbol;
-      Ty: Symbol = nil;
+      Ty: PNode = nil;
       Params: PList;
    begin
       Line := Token.Line;
@@ -534,7 +573,7 @@ var
       if Token.Tag = ColonToken then
          begin
             Next;
-            Ty := GetIdentifier;
+            Ty := GetTypeSpec;
          end;
       if Token.Tag = SemiColonToken then
          Next;
@@ -545,31 +584,14 @@ var
    function GetTypeDeclaration: PNode;
    var
       Line, Col: LongInt;
-      Name, Parent: Symbol;
-      Desc: PNode = nil;
+      Name: Symbol;
    begin
       Line := Token.Line;
       Col := Token.Col;
-      Parent := nil;
       Next;
       Name := GetIdentifier;
       Advance(EqToken);
-      if Token.Tag = RecordToken then
-         begin
-            Next;
-            if Token.Tag = LParenToken then
-               begin
-                  Next;
-                  Parent := GetIdentifier;
-                  Advance(RParenToken);
-               end;
-               Desc := MakeRecordDescNode(Parent, GetFieldList, Line, Col);
-               Advance(EndToken);
-            end
-      else
-         err('Expected ''record'', got ''' +
-             Token.Value, Token.Line, Token.Col);
-      GetTypeDeclaration := MakeTypeDeclNode(Name, Desc, Line, Col);
+      GetTypeDeclaration := MakeTypeDeclNode(Name, GetTypeSpec, Line, Col);
    end;
                
 

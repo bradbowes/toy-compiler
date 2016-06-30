@@ -2,12 +2,17 @@ type node = record (object)
                value: int,
                next: node
             end
+
+type nodes = array of node
+
+type nodesarray = array of array of node
                
 var a: boolean;
+var x: array of integer;
 var b = 1
 var c = 2
-var d: number = 4
-function doSomething(a: integer, b: integer, c: integer);
+var d : number = 4
+function doSomething(a: array of integer, b: integer, c: integer);
 var b: boolean
 begin
    return a + 1 + 2

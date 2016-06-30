@@ -7,16 +7,16 @@ type
    PFieldNode = ^TFieldNode;
    TFieldNode = Object(TNode)
       Name: Symbol;
-      Ty: Symbol;
+      Ty: PNode;
       function Display: String; virtual;
    end;
 
-function MakeFieldNode(Name, Ty: Symbol; Line, Col: LongInt): PFieldNode;
+function MakeFieldNode(Name: Symbol; Ty: PNode; Line, Col: LongInt): PFieldNode;
    
 
 implementation
 
-function MakeFieldNode(Name, Ty: Symbol; Line, Col: LongInt): PFieldNode;
+function MakeFieldNode(Name: Symbol; Ty: PNode; Line, Col: LongInt): PFieldNode;
 var
    n: PFieldNode;
 begin
@@ -30,7 +30,7 @@ end;
 
 function TFieldNode.Display: String;
 begin
-   Display := self.Name^.Id + ': ' + self.Ty^.Id;
+   Display := self.Name^.Id + ': ' + self.Ty^.Display;
 end;
 
 

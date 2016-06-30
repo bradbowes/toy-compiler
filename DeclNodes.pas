@@ -16,7 +16,7 @@ type
    PVarDeclNode = ^TVarDeclNode;
    TVarDeclNode = Object(TNode)
       Name: Symbol;
-      Ty: Symbol;
+      Ty: PNode;
       Initializer: PNode;
       function Display: String; virtual;
    end;
@@ -26,7 +26,7 @@ type
    TFunDeclNode = Object(TNode)
       Name: Symbol;
       Params: PList;
-      Ty: Symbol;
+      Ty: PNode;
       Body: PNode;
       function Display: String; virtual;
    end;
@@ -35,10 +35,9 @@ type
 function MakeTypeDeclNode(
       Name: symbol; Ty: PNode; Line, Col: LongInt): PTypeDeclNode;
 function MakeVarDeclNode(
-      Name, Ty: Symbol; Initializer: PNode; Line, Col: LongInt): PVarDeclNode;
+      Name: Symbol; Ty, Initializer: PNode; Line, Col: LongInt): PVarDeclNode;
 function MakeFunDeclNode(
-      Name: Symbol; Params: PList; Ty: Symbol; Body: PNode;
-      Line, Col: LongInt): PFunDeclNode;
+      Name: Symbol; Params: PList; Ty, Body: PNode; Line, Col: LongInt): PFunDeclNode;
 
 
 implementation
@@ -63,7 +62,7 @@ end;
 
 
 function MakeVarDeclNode(
-      Name, Ty: Symbol; Initializer: PNode; Line, Col: LongInt): PVarDeclNode;
+      Name: Symbol; Ty, Initializer: PNode; Line, Col: LongInt): PVarDeclNode;
 var
    n: PVarDeclNode;
 begin
@@ -82,7 +81,7 @@ var
 begin
    s := 'var ' + self.Name^.Id;
    if self.Ty <> nil then
-      s := s + ': ' + self.Ty^.Id;
+      s := s + ': ' + self.Ty^.Display;
    if self.Initializer <> nil then
       s := s + ' = ' + self.Initializer^.Display;
    Display := s;
@@ -90,8 +89,7 @@ end;
 
 
 function MakeFunDeclNode(
-      Name: Symbol; Params: PList; Ty: Symbol; Body: PNode;
-      Line, Col: LongInt): PFunDeclNode;
+      Name: Symbol; Params: PList; Ty, Body: PNode; Line, Col: LongInt): PFunDeclNode;
 var
    n: PFunDeclNode;
 begin
@@ -111,7 +109,7 @@ var
 begin
    s := 'function ' + self.Name^.Id + '(' + self.Params^.Display + ')';
    if self.Ty <> nil then
-      s := s + ': ' + self.Ty^.Id;
+      s := s + ': ' + self.Ty^.Display;
    Display := s + chr(10) + self.Body^.Display;
 end;
 
