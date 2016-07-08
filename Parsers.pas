@@ -4,7 +4,8 @@ interface
 uses
    utils, Scanners, Symbols, Nodes, LiteralNodes, VarNodes,
    AssignNodes, OpNodes, IfNodes, LoopNodes, CallNodes,
-   BlockNodes, FieldNodes, DescNodes, DeclNodes, bindings;
+   BlockNodes, FieldNodes, DescNodes, DeclNodes, ObjectNodes, 
+   bindings;
    
 procedure Parse(FileName: String);
 
@@ -100,7 +101,7 @@ var
          LBracketToken:
             begin
                GetNext;
-               Node := GetExpression;
+               Node := GetExpressionList;
                Advance(RBracketToken);
                GetVariable := GetVariable(MakeIndexedVarNode(Variable, Node, Line, Col));
             end;
@@ -121,6 +122,7 @@ var
    var
       Line, Col: LongInt;
       Value: String;
+      List: PList;
    begin
       Line := Token.Line;
       Col := Token.Col;
@@ -161,6 +163,18 @@ var
             begin
                Next;
                GetFactor := GetVariable(MakeSimpleVarNode(Intern(Value), Line, Col));
+            end;
+         NewToken:
+            begin
+               Next;
+               GetFactor := MakeNewObjectNode(GetIdentifier, Line, Col);
+            end;
+         ArrayToken:
+            begin
+               Next;
+               List := GetExpressionList;
+               Advance(OfToken);
+               GetFactor := MakeNewArrayNode(GetTypeSpec, List, Line, Col);
             end;
          else
             begin

@@ -1,9 +1,10 @@
 <letter>        = 'a'..'z'
-                | 'A'..'Z'.
+                | 'A'..'Z'
+                | '_'.
 
 <digit>         = '0'..'9'.
 
-<id>            = <letter> {<letter>|<digit>|'_'}.
+<id>            = <letter> {<letter> | <digit>}.
 
 <number>        = <digit> {<digit>}.
 
@@ -26,7 +27,7 @@
                 | 'var' <id> ':' <typespec> '=' <exp>
                 | 'var' <id> ':' <typespec>.
 
-<fundec>        = 'function' <id> '(' <fields> ')' [':' <id>] <block>.
+<fundec>        = 'function' <id> '(' <fields> ')' [':' <typespec>] <block>.
 
 <block>         = <decs> ['begin' <seq>] 'end'.
 
@@ -63,7 +64,7 @@
                 | '>='.
                 
 <sum>           = <product>
-                | <sum> <addlop> <product>.
+                | <sum> <addop> <product>.
 
 <addop>         = '+'
                 | '-'.
@@ -75,11 +76,7 @@
                 | '/'
                 | 'mod'.
                 
-<lvalue>        = <id>
-                | <lvalue> '.' <id>
-                | <lvalue> '[' <exp> ']'.
-
-<factor>        = <lvalue>
+<factor>        = <call>
                 | 'nil'
                 | 'true'
                 | 'false'
@@ -88,6 +85,13 @@
                 | <string>
                 | '-' <factor>
                 | <call>
-                | 'new' <id> {'[' <exp> ']'}.
+                | 'array' <exp> {',' <exp>} 'of' <typespec>
+                | 'new' <id>.
 
-<call>          = <lvalue> '(' [<exp> {',' <exp>}] ')'.
+<call>          = <lvalue>
+                | <lvalue> '(' [<exp> {',' <exp>}] ')'.
+
+<lvalue>        = <id>
+                | <lvalue> '.' <id>
+                | <lvalue> '[' <exp> { ',' <exp> } ']'.
+

@@ -280,7 +280,7 @@ begin
                end;
             '0'..'9': GetNumber;
             '''': GetString;
-            'a'..'z', 'A'..'Z': GetId;
+            'a'..'z', 'A'..'Z', '_': GetId;
             else
                err('Illegal token ''' + s^.ch + '''', Token.Line, Token.Col);
          end;

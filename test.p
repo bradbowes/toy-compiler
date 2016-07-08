@@ -1,6 +1,6 @@
-type node = record (object)
+type _node = record (object)
                value: int,
-               next: node
+               next: _node
             end
 
 type nodes = array of node
@@ -11,7 +11,7 @@ var a: boolean;
 var x: array of integer;
 var b = 1
 var c = 2
-var d : number = 4
+var d : number = x[4, 5, 6]
 function doSomething(a: array of integer, b: integer, c: integer);
 var b: boolean
 begin
@@ -26,7 +26,10 @@ begin
       end;
    end
    
-   a := b = c;
+   printers := array 2, 2 of printer
+   printers[0] := new printer
+   printers[1] := new printer
+   printer[0].print('stuff')
 end
 
 commenatory on the module can go here for now!

@@ -10,7 +10,7 @@ type
               UnaryOpNode, BinaryOpNode,
               FieldNode, IfElseNode, IfNode,
               WhileNode, ForNode, BreakNode, BlockNode,
-              ListNode);
+              ListNode, NewObjectNode, NewArrayNode);
 
    
    SeparatorType = (SemicolonSeparator, CommaSeparator);
