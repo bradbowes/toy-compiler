@@ -7,7 +7,7 @@ type
               IntegerNode, StringNode, BooleanNode, NilNode, 
               TypeDeclNode, VarDeclNode, FunDeclNode,
               NamedDescNode, RecordDescNode, ArrayDescNode,
-              UnaryOpNode, BinaryOpNode,
+              FunDescNode, UnaryOpNode, BinaryOpNode,
               FieldNode, IfElseNode, IfNode,
               WhileNode, ForNode, BreakNode, BlockNode,
               ListNode, NewObjectNode, NewArrayNode);

@@ -25,16 +25,27 @@ type
       Named: Symbol;
       function Display: String; virtual;
    end;
+   
+   
+   PFunDescNode = ^TFunDescNode;
+   TFunDescNode = Object(TNode)
+      Params: PList;
+      Ty: PNode;
+      function Display: String; virtual;
+   end;
 
 
-function MakeRecordDescNode(Parent: Symbol; Fields: PList; Line, Col: LongInt): PRecordDescNode;
+function MakeRecordDescNode(
+      Parent: Symbol; Fields: PList; Line, Col: LongInt): PRecordDescNode;
 function MakeArrayDescNode(Base: PNode; Line, Col: LongInt): PArrayDescNode;
 function MakeNamedDescNode(Named: Symbol; Line, Col: LongInt): PNamedDescNode;
+function MakeFunDescNode(Params: PList; Ty: PNode; Line, Col: LongInt): PFunDescNode;
 
 
 implementation
 
-function MakeRecordDescNode(Parent: Symbol; Fields: PList; Line, Col: LongInt): PRecordDescNode;
+function MakeRecordDescNode(
+      Parent: Symbol; Fields: PList; Line, Col: LongInt): PRecordDescNode;
 var
    n: PRecordDescNode;
 begin
@@ -90,6 +101,29 @@ end;
 function TNamedDescNode.Display: String;
 begin
    Display := Named^.Id;
+end;
+
+
+function MakeFunDescNode(Params: PList; Ty: PNode; Line, Col: LongInt): PFunDescNode;
+var
+   n: PFunDescNode;
+begin
+   new(n, init(Line, Col));
+   n^.Tag := FunDescNode;
+   n^.Params := Params;
+   n^.Ty := Ty;
+   MakeFunDescNode := n;
+end;
+
+
+function TFunDescNode.Display: String;
+var
+   s: String;
+begin
+   s := 'function (' + self.Params^.Display + ')';
+   if self.Ty <> nil then
+      s := s + ': ' + self.Ty^.Display;
+   Display := s;
 end;
 
 

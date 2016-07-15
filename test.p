@@ -1,22 +1,22 @@
 type _node = record (object)
                value: int,
                next: _node
-            end
+            end;
 
-type nodes = array of node
+type nodemaker = function(s: string): node;
 
-type nodesarray = array of array of node
+type nodesarray = array of array of node;
                
 var a: boolean;
 var x: array of integer;
-var b = 1
-var c = 2
-var d : number = x[4, 5, 6]
-function doSomething(a: array of integer, b: integer, c: integer);
-var b: boolean
+var b = (1 + 3) * 4;
+var c = 2;
+var d : number = x[4, 5, 6];
+function doSomething(a: array of integer, b: integer, c: integer): xi;
+var b: boolean = false;
 begin
-   return a + 1 + 2
-end
+   return a + 1 + 2;
+end;
 
 begin
    /* just testing loops */
@@ -24,12 +24,18 @@ begin
       while x = 5 do
          thething();
       end;
-   end
+   end;
    
-   printers := array 2, 2 of printer
-   printers[0] := new printer
-   printers[1] := new printer
-   printer[0].print('stuff')
-end
+   printers := array 2, 2 of printer;
+   printers[0] := new printer;
+   printers[1] := new printer;
+   printer[0].print('stuff');
+   if a = 1 then
+     (new printer).print();
+   else
+     x(y)(new printer).print();
+     x := 1().length;
+   end;
+end.
 
 commenatory on the module can go here for now!

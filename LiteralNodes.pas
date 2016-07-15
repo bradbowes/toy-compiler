@@ -90,7 +90,7 @@ var
    s: String;
 begin
    Str(self.value, s);
-   Display := s;
+   Display := LowerCase(s);
 end;
 
 
