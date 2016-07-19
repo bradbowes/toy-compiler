@@ -5,7 +5,7 @@ uses
    utils, Scanners, Symbols, Nodes, LiteralNodes, VarNodes,
    AssignNodes, OpNodes, IfNodes, LoopNodes, CallNodes,
    BlockNodes, FieldNodes, DescNodes, DeclNodes, ObjectNodes, 
-   bindings;
+   Bindings;
    
 procedure Parse(FileName: String);
 
