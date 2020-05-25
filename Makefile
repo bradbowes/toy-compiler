@@ -9,12 +9,14 @@ $(TARGET):	utils.pas Symbols.pas Scanners.pas nodes.pas LiteralNodes.pas \
         LoopNodes.pas CallNodes.pas FieldNodes.pas DeclNodes.pas \
         DescNodes.pas BlockNodes.pas ObjectNodes.pas compile.pas \
         bindings.pas Parsers.pas
-	fpc -Sh -O3 compile
+	fpc -Sh -Px86_64 -O3 compile
 	strip $(TARGET)
 
 clean:
-	rm -rf $(TARGET)
-	rm -rf *.o
-	rm -rf *.ppu
+	rm -f $(TARGET)
+	rm -f *.o
+	rm -f *.s
+	rm -f ppas.sh
+	rm -f *.ppu
 
 

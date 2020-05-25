@@ -1,14 +1,14 @@
 type _node = record (object)
-               value: int,
-               next: _node
-            end;
+                value: int,
+                next: _node
+             end;
 
 type nodemaker = function(s: string): node;
 
 type nodesarray = array of array of node;
                
 var a: boolean;
-var x: array of integer;
+var x = array 5 of integer;
 var b = (1 + 3) * 4;
 var c = 2;
 var d : number = x[4, 5, 6];

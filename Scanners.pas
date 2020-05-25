@@ -87,6 +87,7 @@ var
 implementation
 
 procedure Scan(s: PScanner);
+
    procedure Next;
    begin
       if s^.open then
@@ -106,16 +107,16 @@ procedure Scan(s: PScanner);
    end;
 
 
-   procedure PushVal(c: char);
+   procedure PushChar();
    begin
-      Token.Value := Token.Value + c;
+      Token.Value := Token.Value + s^.ch;
       Next;
    end;
 
 
-   procedure Advance(TType: TokenTag);
+   procedure Recognize(TType: TokenTag);
    begin
-      PushVal(s^.ch);
+      PushChar;
       Token.Tag := TType;
    end;
 
@@ -169,12 +170,12 @@ procedure Scan(s: PScanner);
             begin
                Next;
                if s^.ch = '''' then
-                  PushVal('''')
+                  PushChar
                else
                   break;
             end
          else
-            PushVal(s^.ch);
+            PushChar;
       until false;
       Token.Tag := StringToken;
    end;
@@ -183,7 +184,7 @@ procedure Scan(s: PScanner);
    procedure GetNumber;
    begin
       while s^.ch in ['0'..'9'] do
-         PushVal(s^.ch);
+         PushChar;
       Token.Tag := NumberToken;
    end;
 
@@ -191,7 +192,7 @@ procedure Scan(s: PScanner);
    procedure GetId;
    begin
       while s^.ch in ['a'..'z', 'A'..'Z', '0'..'9', '_'] do
-         PushVal(s^.ch);
+         PushChar;
       case Token.Value of 
          'and': Token.Tag := AndToken;
          'array': Token.Tag := ArrayToken;
@@ -237,45 +238,45 @@ begin
    else
       begin
          case s^.ch of 
-            ',': Advance(CommaToken);
-            ';': Advance(SemicolonToken);
-            '.': Advance(DotToken);
-            '(': Advance(LParenToken);
-            ')': Advance(RParenToken);
-            '[': Advance(LBracketToken);
-            ']': Advance(RBracketToken);
-            '{': Advance(LBraceToken);
-            '}': Advance(RBraceToken);
-            '+': Advance(PlusToken);
-            '-': Advance(MinusToken);
-            '*': Advance(MulToken);
+            ',': Recognize(CommaToken);
+            ';': Recognize(SemicolonToken);
+            '.': Recognize(DotToken);
+            '(': Recognize(LParenToken);
+            ')': Recognize(RParenToken);
+            '[': Recognize(LBracketToken);
+            ']': Recognize(RBracketToken);
+            '{': Recognize(LBraceToken);
+            '}': Recognize(RBraceToken);
+            '+': Recognize(PlusToken);
+            '-': Recognize(MinusToken);
+            '*': Recognize(MulToken);
             '/':
                begin
-                  PushVal('/');
+                  PushChar;
                   if s^.ch = '*' then SkipComment
                   else Token.Tag := DivToken;
                end;
-            '=': Advance(EqToken);
+            '=': Recognize(EqToken);
             '<':
                begin
-                  PushVal('<');
+                  PushChar;
                   case s^.ch of 
-                     '>': Advance(NEqToken);
-                     '=': Advance(LEqToken);
+                     '>': Recognize(NEqToken);
+                     '=': Recognize(LEqToken);
                      else
                         Token.Tag := LTToken;
                   end;
                end;
             '>':
                begin
-                  PushVal('>');
-                  if s^.ch = '=' then Advance(GEqToken)
+                  PushChar;
+                  if s^.ch = '=' then Recognize(GEqToken)
                   else Token.Tag := GTToken;
                end;
             ':':
                begin
-                  PushVal(':');
-                  if s^.ch = '=' then Advance(AssignToken)
+                  PushChar;
+                  if s^.ch = '=' then Recognize(AssignToken)
                   else Token.Tag := ColonToken;
                end;
             '0'..'9': GetNumber;
