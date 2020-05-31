@@ -12,14 +12,15 @@ type
 
    PNewArrayNode = ^TNewArrayNode;
    TNewArrayNode = Object(TNode)
-      Ty: PNode;
-      Size: PList;
+      Ty: Symbol;
+      Size: PNode;
+      Initializer: PNode;
       function Display: String; virtual;
    end;      
 
 
 function MakeNewObjectNode(Ty: Symbol; Line, Col: LongInt): PNewObjectNode;
-function MakeNewArrayNode(Ty: PNode; Size: PList; Line, Col: LongInt): PNewArrayNode;
+function MakeNewArrayNode(Ty: Symbol; Size, Initializer: PNode; Line, Col: LongInt): PNewArrayNode;
 
 implementation
 
@@ -39,13 +40,14 @@ begin
 end;
 
 
-function MakeNewArrayNode(Ty: PNode; Size: PList; Line, Col: LongInt): PNewArrayNode;
+function MakeNewArrayNode(Ty: Symbol; Size, Initializer: PNode; Line, Col: LongInt): PNewArrayNode;
 var
    n: PNewArrayNode;
 begin
    new(n, init(Line, Col));
    n^.Ty := Ty;
    n^.Size := Size;
+   n^.Initializer := Initializer;
    n^.Tag := NewArrayNode;
    MakeNewArrayNode := n;
 end;
@@ -53,7 +55,7 @@ end;
 
 function TNewArrayNode.Display: String;
 begin
-   Display := 'array ' + self.Size^.Display + ' of ' + self.Ty^.Display;
+   Display := self.Ty^.Id + '[' + self.Size^.Display + '] of ' + self.Initializer^.Display;
 end;
 
 

@@ -2,9 +2,9 @@ unit Parsers;
 interface
 
 uses
-   utils, Scanners, Symbols, Nodes, LiteralNodes, VarNodes,
+   Utils, Scanners, Symbols, Nodes, LiteralNodes, VarNodes,
    AssignNodes, OpNodes, IfNodes, LoopNodes, CallNodes,
-   BlockNodes, FieldNodes, DescNodes, DeclNodes, ObjectNodes, 
+   LetNodes, SequenceNodes, FieldNodes, DescNodes, DeclNodes, ObjectNodes, 
    Bindings;
    
 procedure Parse(FileName: String);
@@ -17,8 +17,6 @@ var
    Scanner: PScanner;
    
    function GetExpression: PNode; forward;
-   function GetSequence: PList; forward;
-   function GetBlock: PNode; forward;
    function GetTypeSpec: PNode; forward;
 
    
@@ -55,21 +53,18 @@ var
    end;
 
 
-   function GetExpressionList: PList;
+   function GetExpressionList(Sep : TokenTag) : PList;
    var
       List: PList;
    begin
       List := MakeList(Token.Line, Token.Col);
-      List^.Separator := CommaSeparator;
-      if Token.Tag <> RParenToken then
-         begin
-            Append(List, GetExpression);
-            while Token.Tag = CommaToken do
-               begin
-                  Next;
-                  Append(List, GetExpression);
-               end;
-         end;               
+      if Sep = CommaToken then List^.Separator := CommaSeparator;
+      Append(List, GetExpression);
+      while Token.Tag = Sep do
+      begin
+         Next;
+         Append(List, GetExpression);
+      end;
       GetExpressionList := List;
    end;
    
@@ -86,57 +81,70 @@ var
       Value := Token.Value;
       GetFactor := nil;
       case Token.Tag of
-         NumberToken:
+         NumberToken: 
             begin
                Next;
                Factor := MakeIntegerNode(atoi(Value, Line, Col), Line, Col);
             end;
-         StringToken:
+         StringToken: 
             begin
                Next;
                Factor := MakeStringNode(Value, Line, Col);
             end;
-         TrueToken:
+         TrueToken: 
             begin
                Next;
                Factor := MakeBooleanNode(true, Line, Col);
             end;
-         FalseToken:
+         FalseToken: 
             begin
                Next;
                Factor := MakeBooleanNode(false, Line, Col);
             end;
-         NilToken:
+         NilToken: 
             begin
                Next;
                Factor := MakeNilNode(Line, Col);
             end;
-         MinusToken:
+         MinusToken: 
             begin
                Next;
-               Factor := MakeUnaryOpNode(MinusOp, GetExpression, Line, Col);
+               Factor := MakeUnaryOpNode(MinusOp, GetFactor, Line, Col);
             end;
-         IdToken:
+         IdToken: 
             begin
                Next;
                Factor := MakeSimpleVarNode(Intern(Value), Line, Col);
-            end;
-         NewToken:
-            begin
-               Next;
-               Factor := MakeNewObjectNode(GetIdentifier, Line, Col);
-            end;
-         ArrayToken:
-            begin
-               Next;
-               List := GetExpressionList;
-               Advance(OfToken);
-               Factor := MakeNewArrayNode(GetTypeSpec, List, Line, Col);
+
+               while Token.Tag in [DotToken, LParenToken, LBracketToken] do
+                  case Token.Tag of
+                     LParenToken:
+                     begin
+                        Next;
+                        if Token.Tag = RParenToken then
+                           List := MakeList(Token.Line, Token.Col)
+                        else
+                           List := GetExpressionList(CommaToken);
+                        Advance(RParenToken);
+                        Factor := MakeCallNode(Factor, List, Line, Col);
+                     end;
+                     DotToken: 
+                     begin
+                        Next;
+                        Factor := MakeFieldVarNode(Factor, GetIdentifier, Line, Col);
+                     end;
+                     LBracketToken: 
+                     begin
+                        Next;
+                        Factor := MakeIndexedVarNode(Factor, GetExpression, Line, Col);
+                        Advance(RBracketToken);
+                     end;
+               end;             
             end;
          LParenToken:
             begin
                Next;
-               Factor := GetExpression;
+               Factor := MakeSequenceNode(GetExpressionList(SemiColonToken), Line, Col);
                Advance(RParenToken);
             end;
          else
@@ -145,28 +153,6 @@ var
                err('Expected value, got ''' + Value + '''', Line, Col);
             end;
       end;
-      while Token.Tag in [DotToken, LParenToken, LBracketToken] do
-         case Token.Tag of
-            LParenToken:
-               begin
-                  Next;
-                  List := GetExpressionList;
-                  Advance(RParenToken);
-                  Factor := MakeCallNode(Factor, List, Line, Col);
-               end;
-            DotToken:
-               begin
-                  Next;
-                  Factor := MakeFieldVarNode(Factor, GetIdentifier, Line, Col);
-               end;
-            LBracketToken:
-               begin
-                  Next;
-                  List := GetExpressionList;
-                  Advance(RBracketToken);
-                  Factor := MakeIndexedVarNode(Factor, List, Line, Col);
-            end;
-         end;
       
       GetFactor := Factor;
    end;
@@ -188,7 +174,6 @@ var
          case Token.Tag of
             MulToken: Helper := Helper(MakeMulNode(MulOp));
             DivToken: Helper := Helper(MakeMulNode(DivOp));
-            ModToken: Helper := Helper(MakeMulNode(ModOp));
             else Helper := left;
          end;
       end;
@@ -253,22 +238,6 @@ var
       end;
    end;
    
-   
-   function GetComplement: PNode;
-   var
-      Line, Col: LongInt;
-   begin
-      Line := Token.Line;
-      Col := Token.Col;
-      if Token.Tag = NotToken then
-         begin
-            Next;
-            GetComplement := MakeUnaryOpNode(NotOp, GetBoolean, Line, Col);
-         end
-      else
-         GetComplement := GetBoolean
-   end;
-   
 
    function GetConjunction: PNode;
    var
@@ -280,7 +249,7 @@ var
             begin
                Next;
                Helper := Helper(MakeBinaryOpNode(
-                     AndOp, left, GetComplement, Line, Col));
+                     AndOp, left, GetBoolean, Line, Col));
             end
          else
             Helper := left;
@@ -289,81 +258,56 @@ var
    begin
       Line := Token.Line;
       Col := Token.Col;
-      GetConjunction := Helper(GetComplement);
+      GetConjunction := Helper(GetBoolean);
    end;
 
 
-   function GetExpression: PNode;
-   var
-      Line, Col: LongInt;
-      
-      function Helper(left: PNode): PNode;
-      begin
-         if Token.Tag = OrToken then
-            begin
-               Next;
-               Helper := Helper(
-                     MakeBinaryOpNode(OrOp, left, GetConjunction, Line, Col));
-            end
-         else
-            Helper := left;
-      end;
-      
-   begin
-      Line := Token.Line;
-      Col := Token.Col;
-      GetExpression := Helper(GetConjunction);
-   end;
-
-
-   function GetIfStatement: PNode;
+   function GetIfExpression: PNode;
    var
       Condition: PNode;
-      Consequent: PList;
+      Consequent: PNode;
       Line, Col: LongInt;
    begin
-      GetIfStatement := nil;
+      GetIfExpression := nil;
       Line := Token.Line;
       Col := Token.Col;
       Next;
       Condition := GetExpression;
       Advance(ThenToken);
-      Consequent := GetSequence;
+      Consequent := GetExpression;
       if Token.Tag = ElseToken then
          begin
             Next;
-            GetIfStatement := MakeIfElseNode(
-                  Condition, Consequent, GetSequence, Line, Col);
+            GetIfExpression := MakeIfElseNode(
+                  Condition, Consequent, GetExpression, Line, Col);
          end
       else
-         GetIfStatement := MakeIfNode(Condition, Consequent, Line, Col);
-      Advance(EndToken);
+         GetIfExpression := MakeIfNode(Condition, Consequent, Line, Col);
    end;
 
 
-   function GetWhileStatement: PNode;
+   function GetWhileExpression: PNode;
    var
       Condition: PNode;
       Line, Col: LongInt;
    begin
-      GetWhileStatement := nil;
+      GetWhileExpression := nil;
       Line := Token.Line;
       Col := Token.Col;
       Next;
       Condition := GetExpression;
       Advance(DoToken);
-      GetWhileStatement := MakeWhileNode(Condition, GetSequence, Line, Col);
-      Advance(EndToken);
+      GetWhileExpression := MakeWhileNode(Condition, GetExpression, Line, Col);
    end;
 
 
-   function GetForStatement: PNode;
+   function GetForExpression: PNode;
    var
       Counter: symbol;
       Start, Finish: PNode;
       Line, Col: LongInt;
    begin
-      GetForStatement := nil;
+      GetForExpression := nil;
       Line := Token.Line;
       Col := Token.Col;
       Next;
@@ -373,9 +317,8 @@ var
       Advance(ToToken);
       Finish := GetExpression;
       Advance(DoToken);
-      GetForStatement := MakeForNode(
-            Counter, Start, Finish, GetSequence, Line, Col);
-      Advance(EndToken);
+      GetForExpression := MakeForNode(
+            Counter, Start, Finish, GetExpression, Line, Col);
    end;
 
 
@@ -390,17 +333,6 @@ var
    end;
 
 
-   function GetReturnStatement: PNode;
-   var
-      Line, Col: LongInt;
-   begin
-      Line := Token.Line;
-      Col := Token.Col;
-      Next;
-      GetReturnStatement := MakeReturnNode(GetExpression, Line, Col);
-   end;
-
-
    function GetAssignment(left: PNode): PNode;
    begin
       GetAssignment := nil;
@@ -409,43 +341,6 @@ var
    end;
 
 
-   function GetStatement: PNode;
-   var
-      exp: PNode;
-   begin
-      GetStatement := nil;
-      case Token.Tag of
-         IfToken: GetStatement := GetIfStatement;
-         WhileToken: GetStatement := GetWhileStatement;
-         ForToken: GetStatement := GetForStatement;
-         BreakToken: GetStatement := GetBreak;
-         ReturnToken: GetStatement := GetReturnStatement;
-         else
-            begin
-               exp := GetExpression;
-               if IsVarNode(exp) then
-                  GetStatement := GetAssignment(exp)
-               else if exp^.Tag = CallNode then
-                  GetStatement := exp
-               else
-                  err('Illegal expression', exp^.Line, exp^.Col);
-            end;
-      end;
-      Advance(SemicolonToken);
-   end; { GetStatement }
-
-
-   function GetSequence: PList;
-   var
-      Seq: PList;
-   begin
-      Seq := MakeList(Token.Line, Token.Col);
-      while not(Token.Tag in [EndToken, ElseToken]) do
-         Append(Seq, GetStatement);
-      GetSequence := Seq;
-   end;
-   
-   
    function getVarDeclaration: PNode;
    var
       Line, Col: LongInt;
@@ -458,26 +353,19 @@ var
       Col := Token.Col;
       Next;
       Name := GetIdentifier;
-      case Token.Tag of
-         ColonToken:
-            begin
-               Next;
-               Ty := GetTypeSpec;
-               if Token.Tag = EqToken then
-                  begin
-                     Next;
-                     Exp := GetExpression;
-                  end;
-            end;
-         EqToken:
-            begin
-               Next;
-               Exp := GetExpression;
-            end
-         else
-            err('Expected '':'' or ''='', got ''' + Token.Value + '''',
-                Token.Line, Token.Col);
-      end;
+      if Token.Tag = ColonToken then
+         begin
+            Next;
+            Ty := GetTypeSpec;
+         end;
+      if Token.Tag = AssignToken then
+         begin
+            Next;
+            Exp := GetExpression;
+         end
+      else
+         err('Expected '':'' or ''='', got ''' + Token.Value + '''',
+             Token.Line, Token.Col);
       GetVarDeclaration := MakeVarDeclNode(Name, Ty, Exp, Line, Col);
    end;
 
@@ -517,47 +405,25 @@ var
    function GetTypeSpec: PNode;
    var
       Line, Col: LongInt;
-      Parent: Symbol = nil;
       Desc: PNode = nil;
-      Params: PList;
-      Ty: PNode = nil;
    begin
       Line := Token.Line;
       Col := Token.Col;
       case Token.Tag of
-         RecordToken: 
+         LBraceToken: 
             begin
                Next;
-               if Token.Tag = LParenToken then
-                  begin
-                     Next;
-                     Parent := GetIdentifier;
-                     Advance(RParenToken);
-                  end;
-                  Desc := MakeRecordDescNode(Parent, GetFieldList, Line, Col);
-                  Advance(EndToken);
-               end;
+               Desc := MakeRecordDescNode(GetFieldList, Line, Col);
+               Advance(RBraceToken);
+            end;
          ArrayToken:
             begin
                Next;
                Advance(OfToken);
-               Desc := MakeArrayDescNode(GetTypeSpec(), Line, Col);
+               Desc := MakeArrayDescNode(GetIdentifier, Line, Col);
             end;
          IdToken:
             Desc := MakeNamedDescNode(GetIdentifier, Line, Col);
-         FunctionToken:
-            begin
-               Next;
-               Advance(LParenToken);
-               Params := GetFieldList;
-               Advance(RParenToken);
-               if Token.Tag = ColonToken then
-                  begin
-                     Next;
-                     Ty := GetTypeSpec();
-                  end;
-               Desc := MakeFunDescNode(Params, Ty, Line, Col);
-            end; 
          else
             err('Expected type spec, got ''' +
                Token.Value, Token.Line, Token.Col);
@@ -586,9 +452,8 @@ var
             Next;
             Ty := GetTypeSpec;
          end;
-      if Token.Tag = SemiColonToken then
-         Next;
-      GetFunctionDeclaration := MakeFunDeclNode(Name, Params, Ty, GetBlock, Line, Col);
+      Advance(EqToken);
+      GetFunctionDeclaration := MakeFunDeclNode(Name, Params, Ty, GetExpression, Line, Col);
    end;
   
 
@@ -617,7 +482,6 @@ var
          err('Expected declaration, got ''' + Token.Value + '''',
              Token.Line, Token.Col);
       end;
-      Advance(SemicolonToken);
    end;
 
 
@@ -629,10 +493,10 @@ var
       while Token.Tag in [VarToken, FunctionToken, TypeToken] do
          Append(Decls, GetDeclaration);
       GetDeclarationList := Decls
-   end;
-   
-   
-   function GetBlock: PNode;
+   end; { GetDeclarationList }
+
+
+   function GetLetExpression: PNode;
    var
       Line, Col: LongInt;
       Decls: PList;
@@ -640,26 +504,66 @@ var
    begin
       Line := Token.Line;
       Col := Token.Col;
+      Next;
       Decls := GetDeclarationList;
-      
-      if Token.Tag = BeginToken then
-         begin
-            Next;
-            Body := GetSequence;
-         end
-      else
-         Body := MakeList(Token.Line, Token.Col);
+      Advance(InToken);
+      Body := GetExpressionList(SemiColonToken);
       Advance(EndToken);
-      GetBlock := MakeBlockNode(Decls, Body, Line, Col);
+      GetLetExpression := MakeLetNode(Decls, Body, Line, Col);
    end;
-      
 
+   
+   function GetExpression: PNode;
+   var
+      Line, Col: LongInt;
+      Exp: PNode;
+   
+      function Helper(left: PNode): PNode;
+      begin
+         if Token.Tag = OrToken then
+            begin
+               Next;
+               Helper := Helper(
+                     MakeBinaryOpNode(OrOp, left, GetConjunction, Line, Col));
+            end
+         else
+            Helper := left;
+      end;
+      
+   begin
+      Line := Token.Line;
+      Col := Token.Col;
+      
+      case Token.Tag of
+         IfToken: GetExpression := GetIfExpression;
+         WhileToken: GetExpression := GetWhileExpression;
+         ForToken: GetExpression := GetForExpression;
+         LetToken: GetExpression := GetLetExpression;
+         BreakToken: GetExpression := GetBreak
+         else
+            begin
+               Exp := GetConjunction;
+               if IsVarNode(Exp) then
+                  if Token.Tag = AssignToken then
+                     GetExpression := GetAssignment(Exp)
+                  else
+                     GetExpression := Helper(Exp)
+               else
+                  GetExpression := Helper(Exp);
+            end;
+      end;
+   end;
+
+
+   
+   
+   
 var
    block: PNode;
 begin
    Scanner := MakeScanner(FileName);
    Next;
-   block := GetBlock;
+   block := GetExpression;
    writeln(block^.display);
 end; { Parse }
 

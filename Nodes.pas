@@ -9,7 +9,7 @@ type
               NamedDescNode, RecordDescNode, ArrayDescNode,
               FunDescNode, UnaryOpNode, BinaryOpNode,
               FieldNode, IfElseNode, IfNode,
-              WhileNode, ForNode, BreakNode, BlockNode,
+              WhileNode, ForNode, BreakNode, LetNode, SequenceNode,
               ListNode, NewObjectNode, NewArrayNode);
 
    
@@ -115,12 +115,11 @@ begin
    while it <> nil do
       begin
          s := s + it^.Node^.Display;
-         case self.Separator of
-            SemiColonSeparator: s := s + ';' + chr(10);
-            CommaSeparator:
-               if it^.Next <> nil then
-                  s := s + ', ';
-         end;
+         if it^.Next <> nil then
+            case self.Separator of
+              SemiColonSeparator : s := s + ';' + chr(10);
+              CommaSeparator     : s := s + ', ';
+            end;                 
          it := it^.Next;
       end;
    Display := s;

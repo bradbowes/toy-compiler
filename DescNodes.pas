@@ -7,7 +7,6 @@ uses Symbols, Nodes;
 type
    PRecordDescNode = ^TRecordDescNode;
    TRecordDescNode = Object(TNode)
-      Parent: Symbol;
       Fields: PList;
       function Display: String; virtual;
    end;
@@ -15,7 +14,7 @@ type
 
    PArrayDescNode = ^TArrayDescNode;
    TArrayDescNode = Object(TNode)
-      Base: PNode;
+      Base: Symbol;
       function Display: String; virtual;
    end;
 
@@ -36,8 +35,8 @@ type
 
 
 function MakeRecordDescNode(
-      Parent: Symbol; Fields: PList; Line, Col: LongInt): PRecordDescNode;
-function MakeArrayDescNode(Base: PNode; Line, Col: LongInt): PArrayDescNode;
+      Fields: PList; Line, Col: LongInt): PRecordDescNode;
+function MakeArrayDescNode(Base: Symbol; Line, Col: LongInt): PArrayDescNode;
 function MakeNamedDescNode(Named: Symbol; Line, Col: LongInt): PNamedDescNode;
 function MakeFunDescNode(Params: PList; Ty: PNode; Line, Col: LongInt): PFunDescNode;
 
@@ -45,32 +44,24 @@ function MakeFunDescNode(Params: PList; Ty: PNode; Line, Col: LongInt): PFunDesc
 implementation
 
 function MakeRecordDescNode(
-      Parent: Symbol; Fields: PList; Line, Col: LongInt): PRecordDescNode;
+      Fields: PList; Line, Col: LongInt): PRecordDescNode;
 var
    n: PRecordDescNode;
 begin
    new(n, init(Line, Col));
    n^.Tag := RecordDescNode;
-   n^.Parent := Parent;
    n^.Fields := Fields;
    MakeRecordDescNode := n;
 end;
 
 
 function TRecordDescNode.Display: String;
-var
-   s: String;
 begin
-   if self.Parent = nil then
-      s := 'object'
-   else
-      s := self.Parent^.Id;
-
-   Display := 'record (' + s + ') ' + chr(10) + self.Fields^.Display + chr(10) + 'end';
+   Display := '{' + self.Fields^.Display + '}';
 end;
 
 
-function MakeArrayDescNode(Base: PNode; Line, Col: LongInt): PArrayDescNode;
+function MakeArrayDescNode(Base: Symbol; Line, Col: LongInt): PArrayDescNode;
 var
    n: PArrayDescNode;
 begin
@@ -83,7 +74,7 @@ end;
 
 function TArrayDescNode.Display: String;
 begin
-   Display := 'array of ' + self.Base^.Display;
+   Display := 'array of ' + self.Base^.Id;
 end;
 
 

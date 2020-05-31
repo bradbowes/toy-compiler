@@ -70,7 +70,7 @@ end;
 
 function TStringNode.Display: String;
 begin
-   Display := '{' + self.Value + '}';
+   Display := '"' + self.Value + '"';
 end;
 
 

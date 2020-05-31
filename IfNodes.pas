@@ -6,8 +6,8 @@ type
    PIfElseNode = ^TIfElseNode;
    TIfElseNode = Object(TNode)
       Condition: PNode;
-      Consequent: PList;
-      Alternative: PList;
+      Consequent: PNode;
+      Alternative: PNode;
       function Display: String; virtual;
    end;
 
@@ -15,19 +15,19 @@ type
    PIfNode = ^TIfNode;
    TIfNode = Object(TNode)
       condition: PNode;
-      consequent: PList;
+      consequent: PNode;
       function Display: String; virtual;
    end;
 
 
-function MakeIfElseNode(Condition: PNode; Consequent, Alternative: PList;
+function MakeIfElseNode(Condition, Consequent, Alternative: PNode;
       Line, Col: LongInt): PIfElseNode;
-function MakeIfNode(Condition: PNode; Consequent: PList; Line, Col: LongInt): PIfNode;
+function MakeIfNode(Condition, Consequent: PNode; Line, Col: LongInt): PIfNode;
 
 
 implementation
 
-function MakeIfElseNode(Condition: PNode; Consequent, Alternative: PList;
+function MakeIfElseNode(Condition, Consequent, Alternative: PNode;
       Line, Col: LongInt): PIfElseNode;
 var
    n: PIfElseNode;
@@ -51,7 +51,7 @@ begin
 end;
    
 
-function MakeIfNode(Condition: PNode; Consequent: PList; Line, Col: LongInt): PIfNode;
+function MakeIfNode(Condition, Consequent: PNode; Line, Col: LongInt): PIfNode;
 var
    n: PIfNode;
 begin

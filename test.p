@@ -1,41 +1,40 @@
-type _node = record (object)
-                value: int,
-                next: _node
-             end;
+let
+   type node = { value: int,  next: node }
 
-type nodemaker = function(s: string): node;
+   type nodearray = array of node
 
-type nodesarray = array of array of node;
+   type intarray = array of int
                
-var a: boolean;
-var x = array 5 of integer;
-var b = (1 + 3) * 4;
-var c = 2;
-var d : number = x[4, 5, 6];
-function doSomething(a: array of integer, b: integer, c: integer): xi;
-var b: boolean = false;
-begin
-   return a + 1 + 2;
-end;
+   var a: boolean := false
+   /* var x := intarray[5] of 0 */
+   var b := (1 + 3) * 4
+   var c := 2
+   /* var d := intarray[4] of 0 */
 
-begin
+   function doSomething(a: int, b: int, c: int): xi =
+   let
+     var x := false
+   in
+     a + b + c
+   end
+
+in
+      
    /* just testing loops */
    for i := 1 to 10 do
       while x = 5 do
          thething();
-      end;
-   end;
    
-   printers := array 2, 2 of printer;
-   printers[0] := new printer;
-   printers[1] := new printer;
-   printer[0].print('stuff');
-   if a = 1 then
-     (new printer).print();
-   else
-     x(y)(new printer).print();
-     x := 1().length;
-   end;
-end.
+nodes := nodearray[2];
+         
+/* nodes[0] := node { value = 0, next = nil }; */
 
-commenatory on the module can go here for now!
+   if a = 1 then
+     (print("hello"); 1)
+   else
+     (print("goodbye"); 2)
+
+   
+end
+
+

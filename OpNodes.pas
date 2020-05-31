@@ -3,9 +3,9 @@ interface
 uses Nodes;
 
 type
-   OpType = (PlusOp, MinusOp, MulOp, DivOp, ModOp,
+   OpType = (PlusOp, MinusOp, MulOp, DivOp,
              EqOp, NEqOp, LtOp, LEqOp, GTOp, GEqOp,
-             AndOp, OrOp, NotOp);
+             AndOp, OrOp);
 
 
    PUnaryOpNode = ^TUnaryOpNode;

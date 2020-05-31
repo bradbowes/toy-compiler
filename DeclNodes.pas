@@ -110,7 +110,7 @@ begin
    s := 'function ' + self.Name^.Id + '(' + self.Params^.Display + ')';
    if self.Ty <> nil then
       s := s + ': ' + self.Ty^.Display;
-   Display := s + chr(10) + self.Body^.Display;
+   Display := s + ' =' + chr(10) + self.Body^.Display;
 end;
 
 

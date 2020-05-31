@@ -4,11 +4,11 @@ else
 	TARGET = compile
 endif
 
-$(TARGET):	utils.pas Symbols.pas Scanners.pas nodes.pas LiteralNodes.pas \
+$(TARGET):	Utils.pas Symbols.pas Scanners.pas nodes.pas LiteralNodes.pas \
         VarNodes.pas AssignNodes.pas OpNodes.pas IfNodes.pas \
         LoopNodes.pas CallNodes.pas FieldNodes.pas DeclNodes.pas \
-        DescNodes.pas BlockNodes.pas ObjectNodes.pas compile.pas \
-        Bindings.pas Parsers.pas
+        DescNodes.pas LetNodes.pas ObjectNodes.pas compile.pas \
+        SequenceNodes.pas Bindings.pas Parsers.pas
 	fpc -Sh -Px86_64 -O3 compile
 	strip $(TARGET)
 

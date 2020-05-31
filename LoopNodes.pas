@@ -6,7 +6,7 @@ type
    PWhileNode = ^TWhileNode;
    TWhileNode = Object(TNode)
       Condition: PNode;
-      Body: PList;
+      Body: PNode;
       function Display: String; virtual;
    end;
 
@@ -16,7 +16,7 @@ type
       Counter: Symbol;
       Start: PNode;
       Finish: PNode;
-      Body: PList;
+      Body: PNode;
       function Display: String; virtual;
    end;
 
@@ -27,16 +27,16 @@ type
    end;
 
 
-function MakeWhileNode(Condition: PNode; Body: PList; Line, Col: LongInt): PWhileNode;
+function MakeWhileNode(Condition, Body: PNode; Line, Col: LongInt): PWhileNode;
 function MakeForNode(
-      Counter: Symbol; Start, Finish: PNode; body: PList;
+      Counter: Symbol; Start, Finish, body: PNode;
       Line, Col: LongInt): PForNode;
 function MakeBreakNode(Line, Col: LongInt): PBreakNode;
 
 
 implementation
 
-function MakeWhileNode(Condition: PNode; Body: PList; Line, Col: LongInt): PWhileNode;
+function MakeWhileNode(Condition, Body: PNode; Line, Col: LongInt): PWhileNode;
 var
    n: PWhileNode;
 begin
@@ -57,7 +57,7 @@ end;
 
 
 function MakeForNode(
-      Counter: Symbol; Start, Finish: PNode; Body: PList;
+      Counter: Symbol; Start, Finish, Body: PNode;
       Line, Col: LongInt): PForNode;
 var
    n: PForNode;
@@ -93,7 +93,7 @@ end;
 
 function TBreakNode.Display: String;
 begin
-   Display := '<break />'
+   Display := 'break'
 end;
 
 
