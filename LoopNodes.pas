@@ -51,8 +51,7 @@ end;
 function TWhileNode.Display: string;
 begin
    Display := 'while ' + Self.Condition^.Display + ' do' + Chr(10) +
-              Self.Body^.Display +
-              'end';
+              Self.Body^.Display;
 end;
 
 
@@ -77,8 +76,7 @@ begin
    Display := 'for ' + Self.Counter^.Id + ' := ' +
               Self.Start^.Display + ' to ' +
               Self.Finish^.Display + ' do' + Chr(10) +
-              Self.Body^.Display +
-              'end'
+              Self.Body^.Display;
 end;
 
 

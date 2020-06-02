@@ -45,9 +45,8 @@ function TIfElseNode.Display: String;
 begin
    Display := 'if ' + Self.Condition^.Display + ' then' + Chr(10) +
               Self.Consequent^.Display +
-              'else' + chr(10) +
-              Self.Alternative^.Display +
-              'end';
+              chr(10) + 'else' + chr(10) +
+              Self.Alternative^.Display;
 end;
    
 
@@ -66,8 +65,7 @@ end;
 function TIfNode.Display: String;
 begin
    Display := 'if ' + Self.Condition^.Display + ' then' + Chr(10) +
-              Self.Consequent^.Display + '</consequent>' +
-              'end';
+              Self.Consequent^.Display + '</consequent>';
 end;
 
 

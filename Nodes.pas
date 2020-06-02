@@ -8,7 +8,7 @@ type
               TypeDeclNode, VarDeclNode, FunDeclNode,
               NamedDescNode, RecordDescNode, ArrayDescNode,
               FunDescNode, UnaryOpNode, BinaryOpNode,
-              FieldNode, IfElseNode, IfNode,
+              FieldNode, FieldDescNode, IfElseNode, IfNode,
               WhileNode, ForNode, BreakNode, LetNode, SequenceNode,
               ListNode, NewObjectNode, NewArrayNode);
 

@@ -2,25 +2,25 @@ unit CallNodes;
 
 interface
 
-uses Nodes;
+uses Symbols, Nodes;
 
 type
    PCallNode = ^TCallNode;
    TCallNode = Object(TNode)
-      Call: PNode;
+      Call: Symbol;
       Args: PList;
       function Display: String; virtual;
    end;
 
 
 function MakeCallNode(
-      Call: PNode; Args: PList; Line, Col: LongInt): PCallNode;
+      Call: Symbol; Args: PList; Line, Col: LongInt): PCallNode;
 
    
 implementation
 
 function MakeCallNode(
-      Call: PNode; Args: PList; Line, Col: LongInt): PCallNode;
+      Call: Symbol; Args: PList; Line, Col: LongInt): PCallNode;
 var
    n: PCallNode;
 begin;
@@ -34,7 +34,7 @@ end;
 
 function TCallNode.Display: string;
 begin
-   Display := self.Call^.Display + '(' + self.Args^.Display + ')';
+   Display := self.Call^.Id + '(' + self.Args^.Display + ')';
 end;
 
 

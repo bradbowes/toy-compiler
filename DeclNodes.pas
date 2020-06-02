@@ -83,7 +83,7 @@ begin
    if self.Ty <> nil then
       s := s + ': ' + self.Ty^.Display;
    if self.Initializer <> nil then
-      s := s + ' = ' + self.Initializer^.Display;
+      s := s + ' := ' + self.Initializer^.Display;
    Display := s;
 end;
 

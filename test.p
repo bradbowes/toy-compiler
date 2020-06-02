@@ -1,4 +1,5 @@
 let
+
    type node = { value: int,  next: node }
 
    type nodearray = array of node
@@ -6,33 +7,37 @@ let
    type intarray = array of int
                
    var a: boolean := false
-   /* var x := intarray[5] of 0 */
    var b := (1 + 3) * 4
    var c := 2
-   /* var d := intarray[4] of 0 */
 
    function doSomething(a: int, b: int, c: int): xi =
    let
      var x := false
    in
-     a + b + c
+     if x then
+        a + b + c
    end
 
 in
-      
-   /* just testing loops */
-   for i := 1 to 10 do
-      while x = 5 do
-         thething();
-   
-nodes := nodearray[2];
-         
-/* nodes[0] := node { value = 0, next = nil }; */
 
+   node := node { value = 0, next = nil };
+
+   /* nodes := nodearray[50] of node { value = 0, next = nil }; */
+
+   for i := 0 to 1 do
+      node := nodes[i];
+      while node <> nil do (
+         thething(node.value);
+         node := node.next
+      );
+         
    if a = 1 then
-     (print("hello"); 1)
+      print("hello")
    else
-     (print("goodbye"); 2)
+      print(node.next.value);
+
+
+   hello := "goodbye"
 
    
 end

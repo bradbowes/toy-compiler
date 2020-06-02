@@ -5,9 +5,10 @@ uses Nodes, Symbols;
 type
    PNewObjectNode = ^TNewObjectNode;
    TNewObjectNode = Object(TNode)
-      Ty: Symbol;
+      Ty: Symbol; 
+      Fields: PList;
       function Display: String; virtual;
-   end;
+   end;           
 
 
    PNewArrayNode = ^TNewArrayNode;
@@ -19,16 +20,17 @@ type
    end;      
 
 
-function MakeNewObjectNode(Ty: Symbol; Line, Col: LongInt): PNewObjectNode;
+function MakeNewObjectNode(Ty: Symbol; Fields: PList; Line, Col: LongInt): PNewObjectNode;
 function MakeNewArrayNode(Ty: Symbol; Size, Initializer: PNode; Line, Col: LongInt): PNewArrayNode;
 
 implementation
 
-function MakeNewObjectNode(Ty: Symbol; Line, Col: LongInt): PNewObjectNode;
+function MakeNewObjectNode(Ty : Symbol; Fields: PList; Line, Col: LongInt): PNewObjectNode;
 var n: PNewObjectNode;
 begin
    new(n, init(Line, Col));
    n^.Ty := Ty;
+   n^.Fields := Fields;
    n^.Tag := NewObjectNode;
    MakeNewObjectNode := n;
 end;
@@ -36,7 +38,7 @@ end;
 
 function TNewObjectNode.Display: String;
 begin
-   Display := 'new ' + self.Ty^.Id
+   Display := self.Ty^.Id + '{' + self.Fields^.Display + '}';
 end;
 
 

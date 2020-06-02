@@ -68,13 +68,47 @@ var
       GetExpressionList := List;
    end;
    
+
+   function GetField: PNode;
+   var
+      Name: Symbol;
+      Line, Col: LongInt;
+   begin
+      Line := Token.Line;
+      Col := Token.Col;
+      Name := GetIdentifier;
+      Advance(EqToken);
+      GetField := MakeFieldNode(Name, GetExpression, Line, Col);
+   end;
+
+   
+   function GetFieldList(): PList;
+   var
+      List: PList;
+   begin
+      List := MakeList(Token.Line, Token.Col);
+      List^.Separator := CommaSeparator;
+      if not (Token.Tag in [RParenToken, RBraceToken]) then
+         begin
+            Append(List, GetField);
+            while Token.Tag = CommaToken do
+               begin
+                  Next;
+                  Append(List, GetField);
+               end;
+         end;               
+      GetFieldList := List;
+   end;
+  
+
       
    function GetFactor: PNode;
    var
-      Line, Col: LongInt;
+      Line, Col : LongInt;
       Value: String;
       List: PList;
       Factor: PNode = nil;
+      Id: Symbol;
    begin
       Line := Token.Line;
       Col := Token.Col;
@@ -113,12 +147,16 @@ var
             end;
          IdToken: 
             begin
-               Next;
-               Factor := MakeSimpleVarNode(Intern(Value), Line, Col);
+               Id := GetIdentifier;
 
-               while Token.Tag in [DotToken, LParenToken, LBracketToken] do
-                  case Token.Tag of
-                     LParenToken:
+               case Token.Tag of
+                  LBraceToken: 
+                     begin
+                        Next;
+                        Factor := MakeNewObjectNode(Id, GetFieldList, Line, Col);
+                        Advance(RBraceToken);
+                     end;
+                  LParenToken: 
                      begin
                         Next;
                         if Token.Tag = RParenToken then
@@ -126,20 +164,27 @@ var
                         else
                            List := GetExpressionList(CommaToken);
                         Advance(RParenToken);
-                        Factor := MakeCallNode(Factor, List, Line, Col);
+                        Factor := MakeCallNode(Id, List, Line, Col);
                      end;
-                     DotToken: 
+                  else
                      begin
-                        Next;
-                        Factor := MakeFieldVarNode(Factor, GetIdentifier, Line, Col);
+                        Factor := MakeSimpleVarNode(Id, Line, Col);
+                        while Token.Tag in [DotToken, LBracketToken] do
+                           case Token.Tag of
+                              DotToken: 
+                                 begin
+                                    Next;
+                                    Factor := MakeFieldVarNode(Factor, GetIdentifier, Line, Col);
+                                 end;
+                              LBracketToken: 
+                                 begin
+                                    Next;
+                                    Factor := MakeIndexedVarNode(Factor, GetExpression, Line, Col);
+                                    Advance(RBracketToken);
+                                 end;
+                           end;             
                      end;
-                     LBracketToken: 
-                     begin
-                        Next;
-                        Factor := MakeIndexedVarNode(Factor, GetExpression, Line, Col);
-                        Advance(RBracketToken);
-                     end;
-               end;             
+               end;
             end;
          LParenToken:
             begin
@@ -262,6 +307,52 @@ var
    end;
 
 
+   function GetDisjunction: PNode;
+   var
+      Line, Col: LongInt;
+      
+      function Helper(left: PNode): PNode;
+      begin
+         if Token.Tag = OrToken then
+            begin
+               Next;
+               Helper := Helper(MakeBinaryOpNode(
+                     OrOp, left, GetConjunction, Line, Col));
+            end
+         else
+            Helper := left;
+      end;
+      
+   begin
+      Line := Token.Line;
+      Col := Token.Col;
+      GetDisjunction := Helper(GetConjunction);
+   end;
+
+
+   function GetAssignment: PNode;
+   var
+      Line, Col: LongInt;
+      LeftSide: PNode;
+      
+   begin
+      Line := Token.Line;
+      Col := Token.Col;
+      GetAssignment := nil;
+      LeftSide := GetConjunction;
+      if Token.Tag = AssignToken then
+         if IsVarNode(LeftSide) then
+            begin
+               Next;
+               GetAssignment := MakeAssignNode(LeftSide, GetExpression, Line, Col);
+            end
+         else
+            err('Assignment to non-variable object', Line, Col)
+      else
+         GetAssignment := LeftSide;
+   end;
+
+
    function GetIfExpression: PNode;
    var
       Condition: PNode;
@@ -333,14 +424,6 @@ var
    end;
 
 
-   function GetAssignment(left: PNode): PNode;
-   begin
-      GetAssignment := nil;
-      Advance(AssignToken);
-      GetAssignment := MakeAssignNode(left, GetExpression, left^.Line, left ^.Col);
-   end;
-
-
    function getVarDeclaration: PNode;
    var
       Line, Col: LongInt;
@@ -370,7 +453,7 @@ var
    end;
 
 
-   function GetField: PNode;
+   function GetFieldDesc: PNode;
    var
       Name: Symbol;
       Line, Col: LongInt;
@@ -379,11 +462,11 @@ var
       Col := Token.Col;
       Name := GetIdentifier;
       Advance(ColonToken);
-      GetField := MakeFieldNode(Name, GetTypeSpec, Line, Col);
+      GetFieldDesc := MakeFieldDescNode(Name, GetIdentifier, Line, Col);
    end;
 
    
-   function GetFieldList: PList;
+   function GetFieldDescList: PList;
    var
       List: PList;
    begin
@@ -391,14 +474,14 @@ var
       List^.Separator := CommaSeparator;
       if not (Token.Tag in [RParenToken, RBraceToken]) then
          begin
-            Append(List, GetField);
+            Append(List, GetFieldDesc);
             while Token.Tag = CommaToken do
                begin
                   Next;
-                  Append(List, GetField);
+                  Append(List, GetFieldDesc);
                end;
          end;               
-      GetFieldList := List;
+      GetFieldDescList := List;
    end;
   
 
@@ -413,7 +496,7 @@ var
          LBraceToken: 
             begin
                Next;
-               Desc := MakeRecordDescNode(GetFieldList, Line, Col);
+               Desc := MakeRecordDescNode(GetFieldDescList, Line, Col);
                Advance(RBraceToken);
             end;
          ArrayToken:
@@ -445,7 +528,7 @@ var
       Next;
       Name := GetIdentifier;
       Advance(LParenToken);
-      Params := GetFieldList;
+      Params := GetFieldDescList;
       Advance(RParenToken);
       if Token.Tag = ColonToken then
          begin
@@ -514,48 +597,16 @@ var
 
    
    function GetExpression: PNode;
-   var
-      Line, Col: LongInt;
-      Exp: PNode;
-   
-      function Helper(left: PNode): PNode;
-      begin
-         if Token.Tag = OrToken then
-            begin
-               Next;
-               Helper := Helper(
-                     MakeBinaryOpNode(OrOp, left, GetConjunction, Line, Col));
-            end
-         else
-            Helper := left;
-      end;
-      
    begin
-      Line := Token.Line;
-      Col := Token.Col;
-      
       case Token.Tag of
          IfToken: GetExpression := GetIfExpression;
          WhileToken: GetExpression := GetWhileExpression;
          ForToken: GetExpression := GetForExpression;
          LetToken: GetExpression := GetLetExpression;
-         BreakToken: GetExpression := GetBreak
-         else
-            begin
-               Exp := GetConjunction;
-               if IsVarNode(Exp) then
-                  if Token.Tag = AssignToken then
-                     GetExpression := GetAssignment(Exp)
-                  else
-                     GetExpression := Helper(Exp)
-               else
-                  GetExpression := Helper(Exp);
-            end;
+         BreakToken: GetExpression := GetBreak;
+         else GetExpression := GetAssignment;
       end;
    end;
-
-
-   
    
    
 var

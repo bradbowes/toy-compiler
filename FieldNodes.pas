@@ -4,34 +4,60 @@ interface
 uses Symbols, Nodes;
 
 type
-   PFieldNode = ^TFieldNode;
-   TFieldNode = Object(TNode)
+   PFieldDescNode = ^TFieldDescNode;
+   TFieldDescNode = Object(TNode)
       Name: Symbol;
-      Ty: PNode;
+      Ty: Symbol;
       function Display: String; virtual;
    end;
 
-function MakeFieldNode(Name: Symbol; Ty: PNode; Line, Col: LongInt): PFieldNode;
-   
+
+   PFieldNode = ^TFieldNode;
+   TFieldNode = Object(TNode)
+      Name: Symbol;
+      Value: PNode;
+      function Display: String; virtual;
+   end;
+
+
+function MakeFieldDescNode(Name, Ty: Symbol; Line, Col: LongInt): PFieldDescNode;
+function MakeFieldNode(Name : Symbol; Value: PNode; Line, Col: LongInt): PFieldNode;
+
 
 implementation
 
-function MakeFieldNode(Name: Symbol; Ty: PNode; Line, Col: LongInt): PFieldNode;
+function MakeFieldDescNode(Name, Ty: Symbol; Line, Col: LongInt): PFieldDescNode;
+var
+   n: PFieldDescNode;
+begin
+   new(n, init(Line, Col));
+   n^.Tag := FieldDescNode;
+   n^.Name := Name;
+   n^.Ty := Ty;
+   MakeFieldDescNode := n;
+end;
+
+
+function TFieldDescNode.Display: String;
+begin
+   Display := self.Name^.Id + ': ' + self.Ty^.Id;
+end;
+
+
+function MakeFieldNode(Name : Symbol; Value: PNode; Line, Col: LongInt): PFieldNode;
 var
    n: PFieldNode;
 begin
    new(n, init(Line, Col));
    n^.Tag := FieldNode;
    n^.Name := Name;
-   n^.Ty := Ty;
+   n^.Value := Value;
    MakeFieldNode := n;
 end;
 
-
 function TFieldNode.Display: String;
 begin
-   Display := self.Name^.Id + ': ' + self.Ty^.Display;
+   Display := self.Name^.Id + ' = ' + self.Value^.Display;
 end;
-
 
 end.

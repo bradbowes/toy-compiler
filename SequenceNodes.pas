@@ -23,7 +23,6 @@ begin
    n^.Tag := SequenceNode;
    n^.Body := Body;      
    MakeSequenceNode := n;
-   writeln('*** ' + n^.Display + ' ***');
 end;
 
 
