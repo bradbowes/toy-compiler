@@ -153,8 +153,9 @@ var
                   LBraceToken: 
                      begin
                         Next;
-                        Factor := MakeNewObjectNode(Id, GetFieldList, Line, Col);
+                        GetFactor := MakeNewObjectNode(Id, GetFieldList, Line, Col);
                         Advance(RBraceToken);
+                        Exit;
                      end;
                   LParenToken: 
                      begin
@@ -166,25 +167,39 @@ var
                         Advance(RParenToken);
                         Factor := MakeCallNode(Id, List, Line, Col);
                      end;
-                  else
+                  LBracketToken: 
                      begin
-                        Factor := MakeSimpleVarNode(Id, Line, Col);
-                        while Token.Tag in [DotToken, LBracketToken] do
-                           case Token.Tag of
-                              DotToken: 
-                                 begin
-                                    Next;
-                                    Factor := MakeFieldVarNode(Factor, GetIdentifier, Line, Col);
-                                 end;
-                              LBracketToken: 
-                                 begin
-                                    Next;
-                                    Factor := MakeIndexedVarNode(Factor, GetExpression, Line, Col);
-                                    Advance(RBracketToken);
-                                 end;
-                           end;             
+                        Next;
+                        Factor := GetExpression;
+                        Advance(RBracketToken);
+                        if Token.Tag = OfToken then
+                           begin
+                              Next;
+                              GetFactor := MakeNewArrayNode(Id, Factor, GetExpression, Line, Col);
+                              Exit;                        
+                           end                           
+                        else
+                           Factor :=  MakeIndexedVarNode(MakeSimpleVarNode(Id, Line, Col), Factor, Line, Col);
                      end;
+                  
+                  else
+                     Factor := MakeSimpleVarNode(Id, Line, Col);
                end;
+
+               while Token.Tag in [DotToken, LBracketToken] do
+                  case Token.Tag of
+                    DotToken: 
+                       begin
+                          Next;
+                          Factor := MakeFieldVarNode(Factor, GetIdentifier, Line, Col);
+                       end;
+                    LBracketToken: 
+                       begin
+                          Next;
+                          Factor := MakeIndexedVarNode(Factor, GetExpression, Line, Col);
+                          Advance(RBracketToken);
+                       end;
+                  end;             
             end;
          LParenToken:
             begin
