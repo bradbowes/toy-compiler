@@ -1,0 +1,26 @@
+module stacks
+
+type node = { value: string,  next: node }
+
+type stack = { top: node }
+
+function create_stack() : stack = stack { top = nil }
+
+function push(s: stack, v: string) =
+  let
+    var n := node { value = v, next = s.top }
+  in
+    s.top := n
+
+
+function pop(s: stack) : string =
+  if n.top = nil
+    error('stack empty!')
+  else
+    let
+      var n := s.top
+    in
+      (s.top := n.next;  n.value)
+
+
+

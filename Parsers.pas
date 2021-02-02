@@ -354,7 +354,7 @@ var
       Line := Token.Line;
       Col := Token.Col;
       GetAssignment := nil;
-      LeftSide := GetConjunction;
+      LeftSide := GetDisjunction;
       if Token.Tag = AssignToken then
          if IsVarNode(LeftSide) then
             begin

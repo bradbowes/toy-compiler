@@ -8,6 +8,8 @@
 
 <number>        = <digit> {<digit>}.
 
+<string>        = '"' { (any character) } '"'.
+
 <decs>          = {<dec>}.
 
 <dec>           = <typedec>
@@ -17,44 +19,40 @@
 <typedec>       = 'type' <id> '=' <typespec>.
 
 <typespec>      = <id>
-                | 'record' ['(' <id> ')'] <fields> 'end'
-                | 'array' 'of' <typespec>
-                | 'function' '(' <fields> ')' [':' <id>].
+                | '{' <fields> '}'
+                | 'array' 'of' <id>
 
 <fields>        = [<id> ':' <typespec> {',' <id> ':' <typespec> }].
 
 <vardec>        = 'var' <id> '=' <exp>
-                | 'var' <id> ':' <typespec> '=' <exp>
-                | 'var' <id> ':' <typespec>.
+                | 'var' <id> ':' <id> '=' <exp>
+                | 'var' <id> ':' <id>.
 
-<fundec>        = 'function' <id> '(' <fields> ')' [':' <typespec>] <block>.
+<fundec>        = 'function' <id> '(' <fields> ')' [':' <typespec>] = <exp>.
 
-<block>         = <decs> ['begin' <seq>] 'end'.
+<exp>           = <assignment>
+                | <ifexp>
+                | <forexp>
+                | <whileexp>
+                | <break>
 
-<seq>           = {<stm>}.
+<ifexp>         = 'if' <exp> 'then' <exp> [ 'else' <exp> ].
 
-<exp>           = <disjunction>.
+<forexp>        = 'for' <id> := <exp> 'to' <exp> 'do' <exp>.
 
-<stm>           = <lvalue> ':=' <exp>
-                | 'if' <exp> 'then' <seq>
-                  ['else' <seq>]
-                  'end'
-                | 'while' <exp> 'do' <seq> 'end'
-                | 'for' <id> ':=' <exp> 'to' <exp> 'do' <seq> 'end'
-                | 'break'
-                | 'return' <exp>
-                | <call>
-                | <stm> ';'.
+<whileexp>      = 'while' <exp> 'do' <exp>.
+
+<break>         = 'break'.
+
+<assignment>    = <disjunction> [ ':=' <exp> ].
 
 <disjunction>   = <conjunction>
-                | <disjunction> 'or' <conjunction>.
+                | <disjunction> '|' <conjunction>.
 
-<conjunction>   = <complement>
-                | <conjunction> 'and' <complement>.
+<conjunction>   = <boolean>
+                | <conjunction> '&' <boolean>.
                 
-<complement>    = ['not'] <bool>.
-                
-<bool>          = <sum> [ <relop> <sum> ].
+<boolean>       = <sum> [ <relop> <sum> ].
 
 <relop>         = '='
                 | '<>'
@@ -73,25 +71,26 @@
                 | <product> <mulop> <factor>.
 
 <mulop>         = '*'
-                | '/'
-                | 'mod'.
+                | '/'.
                 
 <factor>        = <call>
+                | <lvalue>
+                | <object>
+                | <array>
                 | 'nil'
                 | 'true'
                 | 'false'
-                | '(' <exp> ')'
+                | '(' <exp> { ';' <exp> } ')'
                 | <number>
                 | <string>
-                | '-' <factor>
-                | <call>
-                | 'array' <exp> {',' <exp>} 'of' <typespec>
-                | 'new' <id>.
+                | '-' <factor>.
 
-<call>          = <lvalue>
-                | <lvalue> '(' [<exp> {',' <exp>}] ')'.
+<call>          = <id> '(' <exp> { ',' <exp> } ')'.
 
-<lvalue>        = <id>
-                | <lvalue> '.' <id>
-                | <lvalue> '[' <exp> { ',' <exp> } ']'.
+<lvalue>        = <id> { '.' <id> | '[' <exp> ']' }.
 
+<array>         = <id> '[' <exp> ']' of <exp>
+
+<object>        = '{' <attribute> { ',' <attribute } '}'.
+
+<attribute>     = <id> '=' <exp>.
