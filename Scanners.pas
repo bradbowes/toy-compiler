@@ -23,8 +23,9 @@ type
                FunctionToken,
                GEqToken,
                GTToken,
-               IfToken,
                IdToken,
+               IfToken,
+	       ImportToken,
                InToken,
                LBraceToken,
                LBracketToken,
@@ -33,6 +34,7 @@ type
                LParenToken,
                LTToken,
                MinusToken,
+	       ModuleToken,
                MulToken, 
                NEqToken,
                NilToken,
@@ -195,8 +197,10 @@ procedure Scan(s: PScanner);
          'for': Token.Tag := ForToken;
          'function': Token.Tag := FunctionToken;
          'if': Token.Tag := IfToken;
+         'import': Token.Tag := ImportToken;
          'in': Token.Tag := InToken;
          'let': Token.Tag := LetToken;
+         'module': Token.Tag := ModuleToken;
          'nil': Token.Tag := NilToken;
          'of': Token.Tag := OfToken;
          'then': Token.Tag := ThenToken;
@@ -305,14 +309,16 @@ begin
    TokenDisplay[FunctionToken] := 'function';
    TokenDisplay[GEqToken] := '>=';
    TokenDisplay[GTToken] := '>';
-   TokenDisplay[IfToken] := 'if';
    TokenDisplay[IdToken] := '';
+   TokenDisplay[IfToken] := 'if';
+   TokenDisplay[ImportToken] := 'import';
    TokenDisplay[LBraceToken] := '{';
    TokenDisplay[LBracketToken] := '[';
    TokenDisplay[LEqToken] := '<=';
    TokenDisplay[LParenToken] := '(';
    TokenDisplay[LTToken] := '<';
    TokenDisplay[MinusToken] := '-';
+   TokenDisplay[ModuleToken] := 'module';
    TokenDisplay[MulToken] := '*';
    TokenDisplay[NEqToken] := '<>';
    TokenDisplay[NilToken] := 'nil';

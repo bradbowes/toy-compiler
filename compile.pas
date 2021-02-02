@@ -2,6 +2,8 @@ program compile;
 uses
    Parsers;
 
+var i : integer;
+
 begin
-   Parse('test.toy');
+   Parse(paramStr(1));
 end.
