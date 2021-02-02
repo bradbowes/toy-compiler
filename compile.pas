@@ -3,5 +3,5 @@ uses
    Parsers;
 
 begin
-   Parse('test.p');
+   Parse('test.toy');
 end.

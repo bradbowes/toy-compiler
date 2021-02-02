@@ -6,17 +6,17 @@ type
    PLetNode = ^TLetNode;
    TLetNode = object(TNode)
       Decls: PList;
-      Body: PList;
+      Body: PNode;
       function Display: String; virtual;
    end;
          
 
-function MakeLetNode(Decls, Body: PList; Line, Col: LongInt): PLetNode;
+function MakeLetNode(Decls: PList; Body: PNode; Line, Col: LongInt): PLetNode;
       
 
 implementation
 
-   function MakeLetNode(Decls, Body: PList; Line, Col: LongInt): PLetNode;
+function MakeLetNode(Decls: PList; Body: PNode; Line, Col: LongInt): PLetNode;
 var
    n: PLetNode;
 begin
@@ -33,8 +33,7 @@ begin
    Display := 'let' + chr(10) +
               Self.Decls^.Display + chr(10) +
               'in' + chr(10) +
-              Self.Body^.Display + chr(10) +
-              'end';
+              Self.Body^.Display + chr(10);
 end;
 
 

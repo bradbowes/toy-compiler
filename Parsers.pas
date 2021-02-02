@@ -598,15 +598,14 @@ var
    var
       Line, Col: LongInt;
       Decls: PList;
-      Body: PList;
+      Body: PNode;
    begin
       Line := Token.Line;
       Col := Token.Col;
       Next;
       Decls := GetDeclarationList;
       Advance(InToken);
-      Body := GetExpressionList(SemiColonToken);
-      Advance(EndToken);
+      Body := GetExpression;
       GetLetExpression := MakeLetNode(Decls, Body, Line, Col);
    end;
 
